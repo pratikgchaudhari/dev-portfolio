@@ -1,0 +1,44 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title,description)">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title th:text="${title}"></title>
+    <meta name="description" th:content="${description}">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header th:fragment="header"><a class="skip" href="#main">Skip to content</a>
+    <div class="shell nav"><a class="brand" href="/" th:text="${name}">Your Name</a>
+        <nav aria-label="Main navigation"><a href="/" th:classappend="${page == 'home'} ? 'active'"
+                                             th:attr="aria-current=${page == 'home' ? 'page' : null}">Home</a><a
+                href="/blog" th:classappend="${page == 'blog'} ? 'active'"
+                th:attr="aria-current=${page == 'blog' ? 'page' : null}">Writing</a><a href="/books"
+                                                                                       th:classappend="${page == 'books'} ? 'active'"
+                                                                                       th:attr="aria-current=${page == 'books' ? 'page' : null}">Bookshelf</a><a
+                href="/#about">About</a></nav>
+    </div>
+</header>
+<nav th:fragment="socialLinks" class="social-links" aria-label="My social profiles">
+    <a class="action-link" href="https://x.com/pratikc_89" target="_blank" rel="noopener noreferrer">X <span aria-hidden="true">↗</span></a>
+    <a class="action-link" href="https://github.com/pratikgchaudhari" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    <a class="action-link" href="https://www.linkedin.com/in/pratik-chaudhari-71ba37a1/" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+</nav>
+<footer th:fragment="footer" class="shell">
+    <span>© <span th:text="${#dates.year(#dates.createNow())}"></span> <span th:text="${name}"></span></span>
+    <div th:if="${page != 'home'}" class="footer-social">
+        <span class="link-label">Social profiles</span>
+        <nav th:replace="~{fragments :: socialLinks}"></nav>
+    </div>
+</footer>
+<div th:fragment="posts" class="post-list"><p th:if="${posts.isEmpty()}" class="empty">No articles yet.</p><a class="post-row" th:each="post : ${posts}" th:href="@{/blog/{slug}(slug=${post.slug})}">
+    <div class="post-date">
+        <time th:datetime="${post.date}" th:text="${post.displayDate()}"></time>
+        <span th:text="${post.minutes + ' min read'}"></span></div>
+    <div><span class="tag" th:text="${post.tag}"></span>
+        <h3 th:text="${post.title}"></h3>
+        <p th:text="${post.summary}"></p></div>
+    <span class="arrow" aria-hidden="true">↗</span></a></div>
+</body>
+</html>

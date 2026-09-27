@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${'Writing — ' + name}, 'Notes on software and what I learn while building it.')}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main id="main" class="shell">
+    <section class="page-heading">
+        <h1>My <em>writing.</em></h1>
+        <p class="intro">Notes on software and what I learn while building it.</p></section>
+    <section class="writing">
+        <div class="section-head"><h2>Articles<span class="accent">.</span></h2><span class="count"
+                                                                                      th:text="${posts.size() + (posts.size() == 1 ? ' article' : ' articles')}"></span>
+        </div>
+        <div th:replace="~{fragments :: posts}"></div>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>

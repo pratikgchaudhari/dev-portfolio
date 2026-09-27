@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments :: head(${name + ' — Senior Software Engineer & writer'}, ${bio})}"></head>
+<body>
+<header th:replace="~{fragments :: header}"></header>
+<main id="main" class="shell">
+    <section class="hero"><p class="eyebrow" th:text="${role}"></p>
+        <h1>Building software.<br><em>Sharing what I learn.</em></h1>
+        <p class="intro" th:text="${bio}"></p>
+        <div class="hero-actions">
+            <div class="hero-action-group">
+                <p class="link-label">Writing</p>
+                <a class="action-link" href="/blog">Read the blog <span aria-hidden="true">→</span></a>
+            </div>
+            <div class="hero-action-group">
+                <p class="link-label">Social profiles</p>
+                <nav th:replace="~{fragments :: socialLinks}"></nav>
+            </div>
+        </div>
+    </section>
+    <section id="about" class="about"><p class="eyebrow">About</p>
+        <div><h2>A career across the stack.</h2>
+            <p>Since 2014, I’ve built software for education, public services, digital lending, and capital markets. My work spans development, platform upgrades, and team leadership.</p>
+            <p>I work mainly with Java and Spring Boot, with Go, React, and Vue also in my toolkit.</p></div>
+    </section>
+    <section aria-labelledby="journey-heading">
+        <div class="journey-section-heading">
+            <div><p class="eyebrow">Experience</p>
+                <h2 id="journey-heading">My journey<span class="accent">.</span></h2></div>
+            <a class="text-link" href="#chapter-1">Back to the beginning <span aria-hidden="true">↓</span></a></div>
+        <ol class="journey-timeline">
+            <li class="journey-step journey-present" id="chapter-7">
+                <div class="journey-date"><span>2025–Present</span><small>CHAPTER 07</small></div>
+                <article class="journey-card"><p class="journey-company">Nasdaq <span class="present-label">Current</span>
+                </p>
+                    <h3>Capital markets</h3>
+                    <p class="journey-role">Senior Software Engineer · April 2025–Present · Mumbai</p>
+                    <p>I customize Calypso trade workflows and integrations, and support platform upgrades for financial institutions.</p>
+                    <ul>
+                        <li>Enabled Calypso to process 30,000 additional Equity and FX trades a day, supporting a legacy-system migration.
+                        </li>
+                        <li>Built SQL comparison tools and tests to verify queries across 120 migrated classes.
+                        </li>
+                        <li>Raised test coverage from 0% to 77% on another upgrade.</li>
+                    </ul>
+                    <p class="journey-stack">Java 17 / 21 · Spring Boot · Oracle · Postgres · ActiveMQ</p></article>
+            </li>
+            <li class="journey-step " id="chapter-6">
+                <div class="journey-date"><span>2024–2025</span><small>CHAPTER 06</small></div>
+                <article class="journey-card"><p class="journey-company">EPAM Systems</p>
+                    <h3>Merchant screening</h3>
+                    <p class="journey-role">Senior Software Engineer · July 2024–April 2025 · Mumbai</p>
+                    <p>On Mastercard’s MATCH PRO, I improved merchant-screening APIs, data consistency, and privacy controls.</p>
+                    <ul>
+                        <li>Cut Add Merchants API response time by 23% by caching master data.
+                        </li>
+                        <li>Improved consistency between database updates and Solr operations; assessed rate limiting and stack upgrades.
+                        </li>
+                    </ul>
+                    <p class="journey-stack">Java · Spring Boot · React · Oracle · Solr · Azure</p></article>
+            </li>
+            <li class="journey-step " id="chapter-5">
+                <div class="journey-date"><span>2021–2024</span><small>CHAPTER 05</small></div>
+                <article class="journey-card"><p class="journey-company">Thoughtworks</p>
+                    <h3>Digital lending</h3>
+                    <p class="journey-role">Senior Consultant – Developer · September 2021–July 2024 · Mumbai</p>
+                    <p>At Axis Bank’s mAXImus, I worked on credit-card onboarding and a core platform spanning 13 products and 62 customer journeys.</p>
+                    <ul>
+                        <li>Built a partner-onboarding framework handling 300,000 applications a month.</li>
+                        <li>Reduced database size by 30.86% and halved a cleanup job’s runtime for 1.2 million stale records.
+                        </li>
+                        <li>Built a Java event loop to better understand Spring WebFlux and Netty.</li>
+                    </ul>
+                    <p class="journey-stack">Java · Kotlin · Spring WebFlux · Kafka · MongoDB · Kubernetes</p></article>
+            </li>
+            <li class="journey-step " id="chapter-4">
+                <div class="journey-date"><span>2018–2021</span><small>CHAPTER 04</small></div>
+                <article class="journey-card"><p class="journey-company">MKCL</p>
+                    <h3>Public services</h3>
+                    <p class="journey-role">Senior Software Engineer · October 2018–September 2021 · Mumbai</p>
+                    <p>I helped build MP Vanmitra, which tracks forest-rights applications in Madhya Pradesh, then grew from solo contributor to team lead.</p>
+                    <ul>
+                        <li>The platform supported nearly 200,000 individual and 28,000 community forest-rights titles.
+                        </li>
+                        <li>Led part of a nine-person team that delivered a COVID-19 surveillance portal for Pune in one week.
+                        </li>
+                    </ul>
+                    <p class="journey-stack">Go · Java · Python · Vue.js · MongoDB</p></article>
+            </li>
+            <li class="journey-step " id="chapter-3">
+                <div class="journey-date"><span>2016–2018</span><small>CHAPTER 03</small></div>
+                <article class="journey-card"><p class="journey-company">MKCL</p>
+                    <h3>Learning platforms</h3>
+                    <p class="journey-role">Software Engineer · October 2016–October 2018 · Mumbai</p>
+                    <p>For MKCL ERA, I built tools to collect and archive learners’ exam recordings.</p>
+                    <ul>
+                        <li>Built ERA Helper in Go to collect screenshots and recordings.</li>
+                        <li>Built ERA Archiver to package recordings into 1 GB files and store them in AWS S3 Deep Archive.
+                        </li>
+                    </ul>
+                    <p class="journey-stack">Go · Echo · Vue.js · MongoDB · AWS</p></article>
+            </li>
+            <li class="journey-step " id="chapter-2">
+                <div class="journey-date"><span>2014–2016</span><small>CHAPTER 02</small></div>
+                <article class="journey-card"><p class="journey-company">MKCL</p>
+                    <h3>Education systems</h3>
+                    <p class="journey-role">Trainee Software Engineer → Software Engineer · Pune</p>
+                    <p>I built registration, promotion, transfer, and timetable modules for the Saksham Haryana Education Portal, launched in April 2015.</p>
+                    <ul>
+                        <li>The platform manages 100,000 students and up to 200,000 employees each year.
+                        </li>
+                    </ul>
+                    <p class="journey-stack">Java · Spring MVC · JSP · MySQL</p></article>
+            </li>
+            <li class="journey-step " id="chapter-1">
+                <div class="journey-date"><span>2007–2014</span><small>CHAPTER 01</small></div>
+                <article class="journey-card"><p class="journey-company">Education</p>
+                    <h3>Computer engineering</h3>
+                    <ul>
+                        <li>B.E. Computer Engineering, University of Mumbai · 2007–2013</li>
+                        <li>PG-DAC, CDAC Navi Mumbai · 2014</li>
+                    </ul>
+</article>
+            </li>
+        </ol>
+    </section>
+</main>
+<footer th:replace="~{fragments :: footer}"></footer>
+</body>
+</html>
