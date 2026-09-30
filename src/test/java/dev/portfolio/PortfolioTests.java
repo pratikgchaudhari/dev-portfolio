@@ -15,7 +15,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PortfolioTests {
+class PortfolioTests extends DatabaseTestSupport {
     @Autowired
     MockMvc mvc;
     @TempDir
@@ -70,12 +70,12 @@ class PortfolioTests {
 
     @Test
     void socialProfilesAppearOncePerPageAndOpenInNewTabs() throws Exception {
-        var urls = new String[] {
+        var urls = new String[]{
                 "https://x.com/pratikc_89",
                 "https://github.com/pratikgchaudhari",
                 "https://www.linkedin.com/in/pratik-chaudhari-71ba37a1/"
         };
-        for (var route : new String[] {"/", "/blog", "/books", "/blog/keeping-software-simple"}) {
+        for (var route : new String[]{"/", "/blog", "/books", "/blog/keeping-software-simple"}) {
             var html = mvc.perform(get(route)).andExpect(status().isOk())
                     .andReturn().getResponse().getContentAsString();
             assertThat(html).contains("Social profiles", "aria-label=\"My social profiles\"");

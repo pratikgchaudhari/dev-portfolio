@@ -29,7 +29,7 @@ a {
     text-decoration: none
 }
 
-a:focus-visible {
+a:focus-visible, button:focus-visible {
     outline: 3px solid var(--blue);
     outline-offset: 6px
 }
@@ -309,6 +309,85 @@ h2 {
     margin: 0;
     color: var(--muted);
     font-size: 15px
+}
+
+.stat-icon {
+    flex-shrink: 0;
+    vertical-align: middle
+}
+
+.post-stats, .post-stats > span, .view-count, .heart-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px
+}
+
+.post-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 12px
+}
+
+.post-stats .stat-icon {
+    width: 15px;
+    height: 15px
+}
+
+.article-engagement {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 22px;
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 14px
+}
+
+.heart-button {
+    appearance: none;
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 13px;
+    min-height: 44px;
+    cursor: pointer
+}
+
+.heart-button:hover:not(:disabled) {
+    border-color: #b83d5e;
+    color: #b83d5e
+}
+
+.heart-button[aria-pressed="true"] {
+    color: #b83d5e;
+    background: #fff0f4;
+    border-color: #e8b6c3
+}
+
+.heart-button[aria-pressed="true"] .heart-icon {
+    fill: currentColor
+}
+
+.heart-button:disabled {
+    cursor: default;
+    opacity: .6
+}
+
+.engagement-message {
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted)
+}
+
+.engagement-message:empty {
+    display: none
 }
 
 .arrow {

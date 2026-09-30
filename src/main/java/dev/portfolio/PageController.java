@@ -1,5 +1,8 @@
 package dev.portfolio;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +15,8 @@ public class PageController {
     private final BlogService blog;
     private final BooksService books;
     private final int postsPerPage;
+    private final EngagementService engagement;
+    private final ReaderIdentity readers;
     @Value("${portfolio.name}")
     private String name;
     @Value("${portfolio.role}")
@@ -20,6 +25,7 @@ public class PageController {
     private String bio;
 
     public PageController(BlogService blog, BooksService books,
+                          EngagementService engagement, ReaderIdentity readers,
                           @Value("${portfolio.posts-per-page:6}") int postsPerPage) {
         if (postsPerPage < 1) {
             throw new IllegalArgumentException("portfolio.posts-per-page must be at least 1");
@@ -27,6 +33,8 @@ public class PageController {
         this.blog = blog;
         this.books = books;
         this.postsPerPage = postsPerPage;
+        this.engagement = engagement;
+        this.readers = readers;
     }
 
     @ModelAttribute
@@ -38,7 +46,6 @@ public class PageController {
 
     @GetMapping("/")
     String home(Model model) {
-        model.addAttribute("posts", blog.posts().stream().limit(3).toList());
         model.addAttribute("page", "home");
         return "home";
     }
@@ -57,6 +64,7 @@ public class PageController {
         int from = (requestedPage - 1) * postsPerPage;
         int to = from + Math.min(postsPerPage, totalPosts - from);
         model.addAttribute("posts", posts.subList(from, to));
+        model.addAttribute("articleStats", engagement.statsFor(posts.subList(from, to)));
         model.addAttribute("currentPage", requestedPage);
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("totalPosts", totalPosts);
@@ -79,8 +87,11 @@ public class PageController {
     }
 
     @GetMapping("/blog/{slug}")
-    String post(@PathVariable String slug, Model model) {
-        var post = blog.posts().stream().filter(p -> p.slug().equals(slug)).findFirst().orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    String post(@PathVariable String slug, Model model, HttpServletRequest request, HttpServletResponse response) {
+        var post = blog.post(slug);
+        response.setHeader("Cache-Control", "private, no-store");
+        var reader = readers.ensure(request, response);
+        model.addAttribute("stats", engagement.stats(slug, reader));
         model.addAttribute("post", post);
         model.addAttribute("page", "blog");
         return "post";

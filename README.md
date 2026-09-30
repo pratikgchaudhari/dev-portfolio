@@ -1,6 +1,6 @@
 # Personal portfolio & Markdown blog
 
-A Java 17 / Spring Boot 3.5 application with Spring MVC, Thymeleaf, and CommonMark. Responsive, server-rendered pages; no JavaScript build or database required.
+A Java 17 / Spring Boot 3.5 application with Spring MVC, Thymeleaf, CommonMark, and an embedded H2 database for article engagement. Responsive, server-rendered pages; no JavaScript build or separate database server required.
 
 ## Run
 
@@ -58,16 +58,26 @@ Run the packaged JAR on a Java-compatible host, or build the provided Docker ima
 
 ```sh
 docker build -t personal-portfolio .
-docker run --rm -p 8080:8080 personal-portfolio
+docker run --rm -p 8080:8080 -v portfolio-data:/app/data personal-portfolio
 ```
 
 For editable content outside the image:
 
 ```sh
-docker run --rm -p 8080:8080 -v "$PWD/content/posts:/posts:ro" -e CONTENT_DIR=/posts personal-portfolio
+docker run --rm -p 8080:8080 -v portfolio-data:/app/data -v "$PWD/content/posts:/posts:ro" -e CONTENT_DIR=/posts personal-portfolio
 ```
 
 `CONTENT_DIR` overrides the post directory. Keep it on persistent storage and back it up (Git works well). No admin UI is needed: publishing means adding a Markdown file to the server's content folder or redeploying the image with updated content. Use your host's HTTPS/reverse proxy and domain configuration for a public launch. The application has not been publicly deployed.
+
+## Article likes and views
+
+Each article has a heart button that toggles a reader's like, plus a view count. Both totals also appear on the Writing page. A random, HttpOnly, SameSite browser cookie remembers the reader for up to one year; no sign-in is required. Each browser can like an article once and remove that like later. Clearing cookies or using another browser creates a new reader identity, so these are anonymous engagement counts, not verified unique people.
+
+A view is recorded when an article is open in a visible browser tab with JavaScript enabled. Reopening or refreshing the same article within 30 minutes does not add another view for that browser. Listing pages, metadata requests, and HEAD requests do not count. Drafts, future posts, and missing articles cannot receive likes or views. Without JavaScript the article and saved counts remain readable; reactions require JavaScript and cookies.
+
+Counts and likes are stored in `data/engagement.mv.db`, outside the JAR and Markdown files. Keep this directory writable and persistent across deployments. `ENGAGEMENT_DB` changes the database path (for example, `/var/lib/portfolio/engagement`, without a file extension), and `ENGAGEMENT_DB_PASSWORD` optionally sets its password. The Docker commands above retain this data in a named volume. Run one application instance per database file. Stop the application before copying the database for backup; restoring that file restores the counters and reactions. Article filenames identify the counters, so renaming a slug starts a new article's engagement history.
+
+The API uses `GET /api/articles/{slug}/stats`, `POST /api/articles/{slug}/views`, and `PUT /api/articles/{slug}/like` with JSON `{"liked": true}` or `{"liked": false}`. Writes require the reader cookie and `X-Portfolio-Request: 1`; the browser gets its cookie by opening an article. Like writes are idempotent, and transactions serialize updates per article. Tests use isolated H2 databases and do not change production counts.
 
 ## Structure
 

@@ -9,6 +9,12 @@
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>
 <body>
+<svg th:fragment="heartIcon" class="stat-icon heart-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>
+</svg>
+<svg th:fragment="eyeIcon" class="stat-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>
+</svg>
 <header th:fragment="header"><a class="skip" href="#main">Skip to content</a>
     <div class="shell nav"><a class="brand" href="/" th:text="${name}">Your Name</a>
         <nav aria-label="Main navigation"><a href="/" th:classappend="${page == 'home'} ? 'active'"
@@ -38,7 +44,11 @@
         <span th:text="${post.minutes + ' min read'}"></span></div>
     <div><span class="tag" th:text="${post.tag}"></span>
         <h3 th:text="${post.title}"></h3>
-        <p th:text="${post.summary}"></p></div>
+        <p th:text="${post.summary}"></p>
+        <div class="post-stats" th:with="stats=${articleStats[post.slug]}">
+            <span><svg th:replace="~{fragments :: eyeIcon}"></svg><span th:text="${stats.views + (stats.views == 1 ? ' view' : ' views')}"></span></span>
+            <span><svg th:replace="~{fragments :: heartIcon}"></svg><span th:text="${stats.likes + (stats.likes == 1 ? ' like' : ' likes')}"></span></span>
+        </div></div>
     <span class="arrow" aria-hidden="true">↗</span></a></div>
 </body>
 </html>

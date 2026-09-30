@@ -40,6 +40,11 @@ public class BlogService {
         }
     }
 
+    public Post post(String slug) {
+        return posts().stream().filter(post -> post.slug().equals(slug)).findFirst()
+                .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
+    }
+
     Post parse(String slug, String source) {
         String normalized = source.replace("\r\n", "\n");
         if (!normalized.startsWith("---\n")) throw new IllegalArgumentException("Front matter required");

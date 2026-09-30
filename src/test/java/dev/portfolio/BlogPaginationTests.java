@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(properties = "portfolio.posts-per-page=2")
 @AutoConfigureMockMvc
-class BlogPaginationTests {
+class BlogPaginationTests extends DatabaseTestSupport {
     @TempDir
     static Path postsDirectory;
 
