@@ -198,6 +198,55 @@ h1 em {
     padding-top: 12px
 }
 
+.pagination {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    margin-top: 28px;
+    font-size: 14px
+}
+
+.pagination-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    justify-self: start;
+    min-height: 44px;
+    padding: 8px 0;
+    font-weight: 600
+}
+
+.pagination-link:last-child {
+    justify-self: end
+}
+
+.pagination-link span {
+    color: var(--blue)
+}
+
+.pagination-status {
+    color: var(--muted);
+    text-align: center
+}
+
+.pagination-link.is-disabled,
+.pagination-link.is-disabled span {
+    color: var(--muted);
+    opacity: .65
+}
+
+@media (max-width: 400px) {
+    .pagination {
+        gap: 8px;
+        font-size: 13px
+    }
+
+    .pagination-link {
+        gap: 6px
+    }
+}
+
 .section-head {
     display: flex;
     align-items: center;

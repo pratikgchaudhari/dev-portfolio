@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 public class PageController {
     private final BlogService blog;
     private final BooksService books;
+    private final int postsPerPage;
     @Value("${portfolio.name}")
     private String name;
     @Value("${portfolio.role}")
@@ -18,9 +19,14 @@ public class PageController {
     @Value("${portfolio.bio}")
     private String bio;
 
-    public PageController(BlogService blog, BooksService books) {
+    public PageController(BlogService blog, BooksService books,
+                          @Value("${portfolio.posts-per-page:6}") int postsPerPage) {
+        if (postsPerPage < 1) {
+            throw new IllegalArgumentException("portfolio.posts-per-page must be at least 1");
+        }
         this.blog = blog;
         this.books = books;
+        this.postsPerPage = postsPerPage;
     }
 
     @ModelAttribute
@@ -38,8 +44,24 @@ public class PageController {
     }
 
     @GetMapping("/blog")
-    String blog(Model model) {
-        model.addAttribute("posts", blog.posts());
+    String blog(@RequestParam(name = "page", defaultValue = "1") int requestedPage, Model model) {
+        if (requestedPage < 1) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        var posts = blog.posts();
+        int totalPosts = posts.size();
+        int totalPages = totalPosts == 0 ? 1 : 1 + (totalPosts - 1) / postsPerPage;
+        if (requestedPage > totalPages) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        int from = (requestedPage - 1) * postsPerPage;
+        int to = from + Math.min(postsPerPage, totalPosts - from);
+        model.addAttribute("posts", posts.subList(from, to));
+        model.addAttribute("currentPage", requestedPage);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("totalPosts", totalPosts);
+        model.addAttribute("firstPost", totalPosts == 0 ? 0 : from + 1);
+        model.addAttribute("lastPost", to);
         model.addAttribute("page", "blog");
         return "blog";
     }

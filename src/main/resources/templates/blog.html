@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments :: head(${'Writing — ' + name}, 'Notes on software and what I learn while building it.')}"></head>
+<head th:replace="~{fragments :: head(${(currentPage > 1 ? 'Writing — Page ' + currentPage : 'Writing') + ' — ' + name}, 'Notes on software and what I learn while building it.')}"></head>
 <body>
 <header th:replace="~{fragments :: header}"></header>
 <main id="main" class="shell">
@@ -8,10 +8,27 @@
         <h1>My <em>writing.</em></h1>
         <p class="intro">Notes on software and what I learn while building it.</p></section>
     <section class="writing">
-        <div class="section-head"><h2>Articles<span class="accent">.</span></h2><span class="count"
-                                                                                      th:text="${posts.size() + (posts.size() == 1 ? ' article' : ' articles')}"></span>
+        <div class="section-head"><h2>Articles<span class="accent">.</span></h2>
+            <span class="count" th:text="${totalPages > 1 ? firstPost + '–' + lastPost + ' of ' + totalPosts + ' articles' : totalPosts + (totalPosts == 1 ? ' article' : ' articles')}"></span>
         </div>
         <div th:replace="~{fragments :: posts}"></div>
+        <nav class="pagination" aria-label="Article pagination" th:if="${totalPages > 1}">
+            <a th:if="${currentPage > 1}" class="pagination-link" rel="prev"
+               th:href="${currentPage == 2} ? @{/blog} : @{/blog(page=${currentPage - 1})}">
+                <span aria-hidden="true">←</span> Previous
+            </a>
+            <span th:unless="${currentPage > 1}" class="pagination-link is-disabled" aria-disabled="true">
+                <span aria-hidden="true">←</span> Previous
+            </span>
+            <span class="pagination-status" aria-current="page" th:text="${'Page ' + currentPage + ' of ' + totalPages}"></span>
+            <a th:if="${currentPage < totalPages}" class="pagination-link" rel="next"
+               th:href="@{/blog(page=${currentPage + 1})}">
+                Next <span aria-hidden="true">→</span>
+            </a>
+            <span th:unless="${currentPage < totalPages}" class="pagination-link is-disabled" aria-disabled="true">
+                Next <span aria-hidden="true">→</span>
+            </span>
+        </nav>
     </section>
 </main>
 <footer th:replace="~{fragments :: footer}"></footer>

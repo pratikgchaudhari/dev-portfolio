@@ -46,6 +46,12 @@ The filename becomes `/blog/my-first-post`. Use lowercase letters, numbers, and 
 
 Raw HTML is escaped and unsafe URL schemes are removed by the Markdown renderer. Only rendered Markdown is inserted as HTML; metadata uses escaped template output. Images can be placed in `src/main/resources/static/images` and referenced as `/images/example.png` (rebuild the JAR for new static assets). Code blocks are styled without syntax highlighting.
 
+## Article pagination
+
+The Writing page shows six published articles per page, newest first. When there are more articles, Previous/Next links and a page indicator appear below the list. The article count shows the visible range and total. Page URLs can be bookmarked: `/blog` is the first page, and `/blog?page=2` is the second.
+
+Set `POSTS_PER_PAGE` to a positive integer to change the page size, or edit `portfolio.posts-per-page` in `application.properties`. Drafts and future posts are excluded before pagination. Articles with the same date are ordered by filename. Page numbers below 1 or invalid numbers return HTTP 400; pages beyond the last available page return HTTP 404. An empty blog still has a valid first page with its empty state.
+
 ## Deploy
 
 Run the packaged JAR on a Java-compatible host, or build the provided Docker image:
