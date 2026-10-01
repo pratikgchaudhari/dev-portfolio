@@ -14,7 +14,9 @@
             <div class="article-engagement" data-article-engagement th:attr="data-api=@{/api/articles/{slug}(slug=${post.slug})}">
                 <button class="heart-button" type="button" disabled
                         th:attr="aria-pressed=${stats.liked},aria-label=${stats.liked ? 'Unlike this article' : 'Like this article'}">
-                    <svg th:replace="~{fragments :: heartIcon}"></svg>
+                    <span class="heart-reaction" aria-hidden="true">
+                        <svg th:replace="~{fragments :: heartIcon}"></svg>
+                    </span>
                     <span data-like-count th:text="${stats.likes + (stats.likes == 1 ? ' like' : ' likes')}"></span>
                 </button>
                 <span class="view-count"><svg th:replace="~{fragments :: eyeIcon}"></svg>

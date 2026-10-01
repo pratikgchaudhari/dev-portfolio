@@ -8,6 +8,17 @@
     const message = panel.querySelector('[data-engagement-message]');
     let busy = false;
     let viewRequested = false;
+    let celebrationTimer;
+
+    function stopCelebration() {
+        clearTimeout(celebrationTimer);
+        button.classList.remove('is-celebrating');
+    }
+
+    function celebrateLike() {
+        button.classList.add('is-celebrating');
+        celebrationTimer = setTimeout(stopCelebration, 750);
+    }
 
     function render(stats) {
         button.setAttribute('aria-pressed', String(stats.liked));
@@ -54,12 +65,15 @@
 
     button.addEventListener('click', async () => {
         if (busy) return;
+        stopCelebration();
         busy = true;
         button.disabled = true;
         message.textContent = '';
         const liked = button.getAttribute('aria-pressed') !== 'true';
         try {
-            render(await request('like', 'PUT', {liked}));
+            const stats = await request('like', 'PUT', {liked});
+            render(stats);
+            if (liked && stats.liked) celebrateLike();
             message.textContent = liked ? 'Thanks for the love!' : 'Like removed.';
         } catch (error) {
             message.textContent = `Your reaction could not be saved. ${error.message === 'Please allow cookies, then reload this page.' ? error.message : 'Please try again.'}`;

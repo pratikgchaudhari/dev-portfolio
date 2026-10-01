@@ -393,12 +393,111 @@ h2 {
     border-radius: 6px;
     padding: 8px 13px;
     min-height: 44px;
-    cursor: pointer
+    min-width: 108px;
+    justify-content: center;
+    cursor: pointer;
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease,
+                box-shadow .18s ease, transform .12s ease
 }
 
 .heart-button:hover:not(:disabled) {
     border-color: #b83d5e;
-    color: #b83d5e
+    color: #b83d5e;
+    box-shadow: 0 4px 12px rgb(184 61 94 / 10%)
+}
+
+.heart-button:active:not(:disabled) {
+    transform: scale(.96)
+}
+
+.heart-reaction {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0
+}
+
+.heart-button .heart-icon {
+    position: relative;
+    fill: transparent;
+    transform-origin: center;
+    transition: fill .18s ease, transform .18s ease
+}
+
+.heart-button:hover:not(:disabled) .heart-icon {
+    transform: scale(1.1)
+}
+
+.heart-reaction::before,
+.heart-reaction::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none
+}
+
+.heart-reaction::before {
+    width: 30px;
+    height: 30px;
+    border: 2px solid #e891ab;
+    transform: translate(-50%, -50%) scale(.35)
+}
+
+.heart-reaction::after {
+    width: 4px;
+    height: 4px;
+    box-shadow: 0 -22px #e56c91, 19px -11px #b83d5e, 19px 11px #ed9fb6,
+                0 22px #b83d5e, -19px 11px #e56c91, -19px -11px #ed9fb6;
+    transform: translate(-50%, -50%) scale(.35)
+}
+
+.heart-button [data-like-count] {
+    font-variant-numeric: tabular-nums
+}
+
+.heart-button.is-celebrating .heart-icon {
+    animation: heart-pop .6s cubic-bezier(.2, .8, .2, 1)
+}
+
+.heart-button.is-celebrating .heart-reaction::before {
+    animation: heart-ring .6s ease-out
+}
+
+.heart-button.is-celebrating .heart-reaction::after {
+    animation: heart-sparks .7s ease-out
+}
+
+.heart-button.is-celebrating [data-like-count] {
+    animation: like-count-pop .4s ease-out
+}
+
+@keyframes heart-pop {
+    0% { transform: scale(.8) rotate(-8deg) }
+    35% { transform: scale(1.4) rotate(8deg) }
+    60% { transform: scale(.94) rotate(-4deg) }
+    80% { transform: scale(1.12) rotate(2deg) }
+    100% { transform: scale(1) rotate(0) }
+}
+
+@keyframes heart-ring {
+    0% { opacity: .7; transform: translate(-50%, -50%) scale(.35) }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5) }
+}
+
+@keyframes heart-sparks {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(.35) }
+    20% { opacity: 1 }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.45) }
+}
+
+@keyframes like-count-pop {
+    0%, 100% { transform: translateY(0) }
+    40% { transform: translateY(-3px) }
 }
 
 .heart-button[aria-pressed="true"] {
@@ -711,6 +810,20 @@ footer.shell {
 @media (prefers-reduced-motion: reduce) {
     html {
         scroll-behavior: auto
+    }
+
+    .heart-button,
+    .heart-button .heart-icon,
+    .heart-button [data-like-count],
+    .heart-reaction::before,
+    .heart-reaction::after {
+        animation: none !important;
+        transition: none !important
+    }
+
+    .heart-button:active:not(:disabled),
+    .heart-button:hover:not(:disabled) .heart-icon {
+        transform: none
     }
 }
 
