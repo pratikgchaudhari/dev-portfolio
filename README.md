@@ -48,7 +48,7 @@ Raw HTML is escaped and unsafe URL schemes are removed by the Markdown renderer.
 
 ## Article pagination
 
-The Writing page shows six published articles per page, newest first. When there are more articles, Previous/Next links and a page indicator appear below the list. The article count shows the visible range and total. Page URLs can be bookmarked: `/blog` is the first page, and `/blog?page=2` is the second.
+The Writing page shows six published articles per page, newest first. When there are more articles, matching Previous/Next links and a page indicator appear above and below the list. The top controls stay visible as you scroll. Following a link from either set lands at the top controls on the new page, ready to continue browsing. The article count shows the visible range and total. Page URLs can be bookmarked: `/blog` is the first page, and `/blog?page=2` is the second.
 
 Set `POSTS_PER_PAGE` to a positive integer to change the page size, or edit `portfolio.posts-per-page` in `application.properties`. Drafts and future posts are excluded before pagination. Articles with the same date are ordered by filename. Page numbers below 1 or invalid numbers return HTTP 400; pages beyond the last available page return HTTP 404. An empty blog still has a valid first page with its empty state.
 

@@ -190,6 +190,11 @@ h1 em {
     border-bottom: 0
 }
 
+.writing-page {
+    scroll-behavior: auto;
+    scroll-padding-top: 12px
+}
+
 .writing {
     padding: 48px 0 64px
 }
@@ -203,8 +208,23 @@ h1 em {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     gap: 16px;
-    margin-top: 28px;
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--paper);
+    box-shadow: 0 6px 20px rgb(23 32 44 / 6%);
     font-size: 14px
+}
+
+.pagination-top {
+    position: sticky;
+    top: 12px;
+    z-index: 10
+}
+
+.pagination-bottom {
+    margin: 28px 0 0
 }
 
 .pagination-link {
@@ -213,8 +233,18 @@ h1 em {
     gap: 10px;
     justify-self: start;
     min-height: 44px;
-    padding: 8px 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
     font-weight: 600
+}
+
+a.pagination-link:hover {
+    background: #eef2ff
+}
+
+a.pagination-link:focus-visible {
+    outline-offset: 2px
 }
 
 .pagination-link:last-child {
@@ -227,7 +257,12 @@ h1 em {
 
 .pagination-status {
     color: var(--muted);
+    white-space: nowrap;
     text-align: center
+}
+
+.writing .post-row {
+    scroll-margin-top: 100px
 }
 
 .pagination-link.is-disabled,
@@ -238,12 +273,14 @@ h1 em {
 
 @media (max-width: 400px) {
     .pagination {
-        gap: 8px;
+        gap: 6px;
+        padding: 8px;
         font-size: 13px
     }
 
     .pagination-link {
-        gap: 6px
+        gap: 6px;
+        padding: 8px
     }
 }
 

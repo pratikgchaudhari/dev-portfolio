@@ -56,7 +56,7 @@ class BlogPaginationTests extends DatabaseTestSupport {
         assertThat(result.getModelAndView().getModel())
                 .containsEntry("currentPage", 1).containsEntry("totalPages", 3)
                 .containsEntry("totalPosts", 5);
-        assertThat(html(result)).contains("1–2 of 5 articles", "Page 1 of 3", "rel=\"next\"", "href=\"/blog?page=2\"")
+        assertThat(html(result)).contains("1–2 of 5 articles", "Page 1 of 3", "rel=\"next\"", "href=\"/blog?page=2#articles\"")
                 .doesNotContain("rel=\"prev\"", "/blog/draft", "/blog/future");
         assertThat(html(assertPage("1", "post-5", "post-4"))).isEqualTo(html(result));
     }
@@ -67,8 +67,8 @@ class BlogPaginationTests extends DatabaseTestSupport {
 
         var result = assertPage("2", "post-3", "post-2");
         assertThat(html(result)).contains("3–4 of 5 articles", "Page 2 of 3", "Writing — Page 2 —",
-                "href=\"/blog?page=3\"").doesNotContain("/blog/post-5", "/blog/post-4", "/blog/post-1");
-        assertThat(Pattern.compile("<a\\b[^>]*rel=\"prev\"[^>]*href=\"/blog\"")
+                "href=\"/blog?page=3#articles\"").doesNotContain("/blog/post-5", "/blog/post-4", "/blog/post-1");
+        assertThat(Pattern.compile("<a\\b[^>]*rel=\"prev\"[^>]*href=\"/blog#articles\"")
                 .matcher(html(result)).find()).isTrue();
         assertThat(html(result)).contains("rel=\"next\"");
     }
@@ -78,7 +78,7 @@ class BlogPaginationTests extends DatabaseTestSupport {
         seedPosts(5);
 
         var result = assertPage("3", "post-1");
-        assertThat(html(result)).contains("5–5 of 5 articles", "Page 3 of 3", "rel=\"prev\"", "href=\"/blog?page=2\"")
+        assertThat(html(result)).contains("5–5 of 5 articles", "Page 3 of 3", "rel=\"prev\"", "href=\"/blog?page=2#articles\"")
                 .doesNotContain("rel=\"next\"");
     }
 
@@ -89,7 +89,7 @@ class BlogPaginationTests extends DatabaseTestSupport {
         var result = mvc.perform(get("/blog")).andExpect(status().isOk()).andReturn();
 
         assertThat(html(result)).contains(count + (count == 1 ? " article" : " articles"))
-                .doesNotContain("aria-label=\"Article pagination\"");
+                .doesNotContain("aria-label=\"Article pagination");
         assertThat(Pattern.compile("class=\"post-row\"").matcher(html(result)).results().count()).isEqualTo(count);
         if (count == 0) {
             assertThat(html(result)).contains("No articles yet.");
@@ -139,7 +139,7 @@ class BlogPaginationTests extends DatabaseTestSupport {
 
         writePost("post-3", "2020-01-03", true);
         assertThat(html(assertPage("1", "post-2", "post-1")))
-                .doesNotContain("aria-label=\"Article pagination\"");
+                .doesNotContain("aria-label=\"Article pagination");
         mvc.perform(get("/blog").param("page", "2")).andExpect(status().isNotFound());
     }
 
@@ -155,6 +155,21 @@ class BlogPaginationTests extends DatabaseTestSupport {
                 .isEqualTo(expectedSlugs.length);
         for (var slug : expectedSlugs) {
             assertThat(html(result)).contains("href=\"/blog/" + slug + "\"");
+        }
+        if ((int) result.getModelAndView().getModel().get("totalPages") > 1) {
+            var rendered = html(result);
+            assertThat(rendered).containsOnlyOnce("id=\"articles\"")
+                    .containsOnlyOnce("id=\"articles-bottom\"")
+                    .containsOnlyOnce("aria-label=\"Article pagination — top\"")
+                    .containsOnlyOnce("aria-label=\"Article pagination — bottom\"");
+            assertThat(rendered.indexOf("id=\"articles\""))
+                    .isLessThan(rendered.indexOf("class=\"post-list\""));
+            assertThat(rendered.indexOf("id=\"articles-bottom\""))
+                    .isGreaterThan(rendered.lastIndexOf("class=\"post-row\""));
+            var controls = Pattern.compile("<nav\\b[^>]*class=\"pagination [^\"]*\"[^>]*>(.*?)</nav>", Pattern.DOTALL)
+                    .matcher(rendered).results().map(match -> match.group(1)).toList();
+            assertThat(controls).hasSize(2);
+            assertThat(controls.get(0)).isEqualTo(controls.get(1));
         }
         return result;
     }

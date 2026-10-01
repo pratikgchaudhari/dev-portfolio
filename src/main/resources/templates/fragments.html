@@ -38,6 +38,26 @@
         <nav th:replace="~{fragments :: socialLinks}"></nav>
     </div>
 </footer>
+<nav th:fragment="pagination(position)" th:if="${totalPages > 1}"
+     class="pagination" th:classappend="${'pagination-' + position}"
+     th:id="${position == 'top' ? 'articles' : 'articles-bottom'}"
+     th:attr="aria-label=${'Article pagination — ' + position}">
+    <a th:if="${currentPage > 1}" class="pagination-link" rel="prev"
+       th:href="${currentPage == 2} ? @{/blog#articles} : @{/blog#articles(page=${currentPage - 1})}">
+        <span aria-hidden="true">←</span> Previous
+    </a>
+    <span th:unless="${currentPage > 1}" class="pagination-link is-disabled" aria-disabled="true">
+        <span aria-hidden="true">←</span> Previous
+    </span>
+    <span class="pagination-status" aria-current="page" th:text="${'Page ' + currentPage + ' of ' + totalPages}"></span>
+    <a th:if="${currentPage < totalPages}" class="pagination-link" rel="next"
+       th:href="@{/blog#articles(page=${currentPage + 1})}">
+        Next <span aria-hidden="true">→</span>
+    </a>
+    <span th:unless="${currentPage < totalPages}" class="pagination-link is-disabled" aria-disabled="true">
+        Next <span aria-hidden="true">→</span>
+    </span>
+</nav>
 <div th:fragment="posts" class="post-list"><p th:if="${posts.isEmpty()}" class="empty">No articles yet.</p><a class="post-row" th:each="post : ${posts}" th:href="@{/blog/{slug}(slug=${post.slug})}">
     <div class="post-date">
         <time th:datetime="${post.date}" th:text="${post.displayDate()}"></time>
