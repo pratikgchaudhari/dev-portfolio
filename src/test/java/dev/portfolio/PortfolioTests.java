@@ -75,7 +75,7 @@ class PortfolioTests extends DatabaseTestSupport {
                 "https://github.com/pratikgchaudhari",
                 "https://www.linkedin.com/in/pratik-chaudhari-71ba37a1/"
         };
-        for (var route : new String[]{"/", "/blog", "/books", "/blog/keeping-software-simple"}) {
+        for (var route : new String[]{"/", "/blog", "/books", "/blog/generics-in-java"}) {
             var html = mvc.perform(get(route)).andExpect(status().isOk())
                     .andReturn().getResponse().getContentAsString();
             assertThat(html).contains("Social profiles", "aria-label=\"My social profiles\"");
@@ -93,7 +93,7 @@ class PortfolioTests extends DatabaseTestSupport {
     @Test
     void pagesAndMissingPosts() throws Exception {
         mvc.perform(get("/blog")).andExpect(status().isOk());
-        mvc.perform(get("/blog/keeping-software-simple")).andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("<table>")));
+        mvc.perform(get("/blog/generics-in-java")).andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("<title>Generics in Java — Pratik Chaudhari</title>")));
         mvc.perform(get("/blog/does-not-exist")).andExpect(status().isNotFound());
     }
 }
