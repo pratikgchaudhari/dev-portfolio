@@ -1,10 +1,35 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head th:fragment="head(title,description)">
+<head th:fragment="head">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title th:text="${title}"></title>
-    <meta name="description" th:content="${description}">
+    <title th:text="${seo.title}"></title>
+    <meta name="description" th:content="${seo.description}">
+    <meta name="author" th:content="${name}">
+    <meta name="robots" th:content="${seo.robots}">
+    <link th:if="${seo.canonicalUrl != null}" rel="canonical" th:href="${seo.canonicalUrl}">
+    <meta property="og:type" th:content="${seo.type}">
+    <meta property="og:site_name" th:content="${name}">
+    <meta property="og:title" th:content="${seo.title}">
+    <meta property="og:description" th:content="${seo.description}">
+    <meta th:if="${seo.canonicalUrl != null}" property="og:url" th:content="${seo.canonicalUrl}">
+    <meta th:if="${seo.imageUrl != null}" property="og:image" th:content="${seo.imageUrl}">
+    <meta th:if="${seo.imageUrl != null}" property="og:image:width" content="1200">
+    <meta th:if="${seo.imageUrl != null}" property="og:image:height" content="630">
+    <meta th:if="${seo.imageUrl != null}" property="og:image:type" content="image/png">
+    <meta th:if="${seo.imageUrl != null}" property="og:image:alt" th:content="${name + ' — Building software. Sharing what I learn.'}">
+    <meta name="twitter:card" th:content="${seo.imageUrl != null ? 'summary_large_image' : 'summary'}">
+    <meta name="twitter:creator" content="@pratikc_89">
+    <meta name="twitter:title" th:content="${seo.title}">
+    <meta name="twitter:description" th:content="${seo.description}">
+    <meta th:if="${seo.imageUrl != null}" name="twitter:image" th:content="${seo.imageUrl}">
+    <meta th:if="${seo.imageUrl != null}" name="twitter:image:alt" th:content="${name + ' — Building software. Sharing what I learn.'}">
+    <meta th:if="${seo.published != null}" property="article:published_time" th:content="${seo.published}">
+    <meta th:if="${seo.published != null and seo.authorUrl != null}" property="article:author" th:content="${seo.authorUrl}">
+    <script th:if="${seo.structuredData != null}" type="application/ld+json" th:utext="${seo.structuredData}"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap">
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 </head>

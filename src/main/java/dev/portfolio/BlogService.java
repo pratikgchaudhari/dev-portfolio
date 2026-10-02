@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.Image;
 
 import java.nio.file.*;
 import java.io.IOException;
@@ -15,7 +16,14 @@ import java.util.*;
 public class BlogService {
     private final Path directory;
     private final Parser parser = Parser.builder().extensions(List.of(TablesExtension.create())).build();
-    private final HtmlRenderer renderer = HtmlRenderer.builder().extensions(List.of(TablesExtension.create())).escapeHtml(true).sanitizeUrls(true).build();
+    private final HtmlRenderer renderer = HtmlRenderer.builder().extensions(List.of(TablesExtension.create()))
+            .escapeHtml(true).sanitizeUrls(true)
+            .attributeProviderFactory(context -> (node, tagName, attributes) -> {
+                if (node instanceof Image) {
+                    attributes.put("loading", "lazy");
+                    attributes.put("decoding", "async");
+                }
+            }).build();
 
     public BlogService(@Value("${portfolio.content-dir:content/posts}") String directory) {
         this.directory = Path.of(directory);

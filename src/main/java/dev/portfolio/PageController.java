@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Value;
 
 @Controller
@@ -17,6 +18,7 @@ public class PageController {
     private final int postsPerPage;
     private final EngagementService engagement;
     private final ReaderIdentity readers;
+    private final SeoService seo;
     @Value("${portfolio.name}")
     private String name;
     @Value("${portfolio.role}")
@@ -25,7 +27,7 @@ public class PageController {
     private String bio;
 
     public PageController(BlogService blog, BooksService books,
-                          EngagementService engagement, ReaderIdentity readers,
+                          EngagementService engagement, ReaderIdentity readers, SeoService seo,
                           @Value("${portfolio.posts-per-page:6}") int postsPerPage) {
         if (postsPerPage < 1) {
             throw new IllegalArgumentException("portfolio.posts-per-page must be at least 1");
@@ -35,6 +37,7 @@ public class PageController {
         this.postsPerPage = postsPerPage;
         this.engagement = engagement;
         this.readers = readers;
+        this.seo = seo;
     }
 
     @ModelAttribute
@@ -47,6 +50,7 @@ public class PageController {
     @GetMapping("/")
     String home(Model model) {
         model.addAttribute("page", "home");
+        model.addAttribute("seo", seo.home());
         return "home";
     }
 
@@ -71,18 +75,20 @@ public class PageController {
         model.addAttribute("firstPost", totalPosts == 0 ? 0 : from + 1);
         model.addAttribute("lastPost", to);
         model.addAttribute("page", "blog");
+        model.addAttribute("seo", seo.writing(requestedPage, totalPages, posts.subList(from, to)));
         return "blog";
     }
 
     @GetMapping("/about")
-    String about() {
-        return "redirect:/#about";
+    ResponseEntity<Void> about() {
+        return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY).header("Location", "/#about").build();
     }
 
     @GetMapping("/books")
     String books(Model model) {
         model.addAttribute("shelf", books.shelf());
         model.addAttribute("page", "books");
+        model.addAttribute("seo", seo.books());
         return "books";
     }
 
@@ -94,6 +100,7 @@ public class PageController {
         model.addAttribute("stats", engagement.stats(slug, reader));
         model.addAttribute("post", post);
         model.addAttribute("page", "blog");
+        model.addAttribute("seo", seo.article(post));
         return "post";
     }
 }

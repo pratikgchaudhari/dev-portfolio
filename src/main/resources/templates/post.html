@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments :: head(${post.title + ' — ' + name}, ${post.summary})}"></head>
+<head th:replace="~{fragments :: head}"></head>
 <body>
 <header th:replace="~{fragments :: header}"></header>
 <main id="main" class="article-shell"><a class="back" href="/blog">← All writing</a>
@@ -8,7 +8,7 @@
         <header class="article-heading"><p class="eyebrow" th:text="${post.tag}"></p>
             <h1 th:text="${post.title}"></h1>
             <p class="intro" th:text="${post.summary}"></p>
-            <div class="byline"><span th:text="${name}"></span><span aria-hidden="true">/</span>
+            <div class="byline"><a href="/#about" rel="author" th:text="${name}"></a><span aria-hidden="true">/</span>
                 <time th:datetime="${post.date}" th:text="${post.displayDate()}"></time>
                 <span th:text="${post.minutes + ' min read'}"></span></div>
             <div class="article-engagement" data-article-engagement th:attr="data-api=@{/api/articles/{slug}(slug=${post.slug})}">

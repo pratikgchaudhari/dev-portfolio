@@ -55,7 +55,8 @@ public class EngagementController {
     }
 
     private ResponseEntity<ArticleStats> result(ArticleStats stats) {
-        return ResponseEntity.ok().cacheControl(CacheControl.noStore()).body(stats);
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .header("X-Robots-Tag", "noindex").body(stats);
     }
 
     record LikeRequest(Boolean liked) {
