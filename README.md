@@ -22,6 +22,12 @@ java -jar target/portfolio-1.0.0.jar
 
 Edit `src/main/resources/application.properties` for your name, role, and introduction. Edit the About text in `src/main/resources/templates/home.html`. The profile and About timeline on the home page are based on the supplied resume. Published articles live in `content/posts`. Colors and layout are in `src/main/resources/static/style.css`. Google Fonts is optional; local sans-serif fonts are used if unavailable.
 
+## Appearance
+
+Use the sun/moon switch in the header to choose light or dark mode. New visitors follow their device's color preference, including changes while the page is open. A manual choice is saved in browser local storage, persists across pages and visits, and syncs between open tabs. If storage is blocked, the switch still works for the current page. Without JavaScript, the site follows the system preference and hides the inactive switch.
+
+Both palettes live in `src/main/resources/static/style.css`; the small `theme.js` script applies the preference before styles load to avoid a flash of the wrong theme. Bookshelf cards, the About timeline, article code blocks, and reactions use the same palette.
+
 ## Publish a post
 
 Create `content/posts/my-first-post.md`:
