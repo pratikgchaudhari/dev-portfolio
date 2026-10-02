@@ -52,6 +52,18 @@ The filename becomes `/blog/my-first-post`. Use lowercase letters, numbers, and 
 
 Raw HTML is escaped and unsafe URL schemes are removed by the Markdown renderer. Only rendered Markdown is inserted as HTML; metadata uses escaped template output. Images can be placed in `src/main/resources/static/images` and referenced as `/images/example.png` (rebuild the JAR for new static assets). Code blocks are styled without syntax highlighting.
 
+## Related articles ("Also see")
+
+Add an optional `related` line inside a post's front matter to link to other articles on this site:
+
+```markdown
+related: generics-in-java, concurrent-collections-in-java
+```
+
+Use each target's filename without `.md`, separated by commas. A single slug works too. The article shows an **Also see** section beneath its content with each linked article's current title, summary, tag, and reading time. Links open in the same tab and appear in the order you specify. The section supports both light and dark mode and works without JavaScript.
+
+Duplicates, self-links, and references that do not match a published article are omitted, including drafts and future-dated posts. Use slugs rather than full URLs or Markdown links. If no valid related articles remain, the section is hidden. Links are one-way; add a `related` line to the other post for a reciprocal link. Changes take effect on the next request without rebuilding the JAR.
+
 ## Article pagination
 
 The Writing page shows six published articles per page, newest first. When there are more articles, matching Previous/Next links and a page indicator appear above and below the list. The top controls stay visible as you scroll. Following a link from either set lands at the top controls on the new page, ready to continue browsing. The article count shows the visible range and total. Page URLs can be bookmarked: `/blog` is the first page, and `/blog?page=2` is the second.

@@ -784,6 +784,79 @@ footer.shell {
     text-align: left
 }
 
+.related-articles {
+    margin-top: 56px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line)
+}
+
+.related-articles h2 {
+    margin: 0 0 22px
+}
+
+.related-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px
+}
+
+.related-link {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface)
+}
+
+.related-copy {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere
+}
+
+.related-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 6px 16px;
+    color: var(--muted);
+    font-size: 12px
+}
+
+.related-link h3 {
+    margin: 10px 0;
+    font-size: 21px;
+    line-height: 1.4;
+    letter-spacing: -.4px
+}
+
+.related-link p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7
+}
+
+.related-arrow {
+    flex-shrink: 0;
+    color: var(--blue);
+    font-size: 23px
+}
+
+.related-link:hover,
+.related-link:focus-visible {
+    border-color: var(--blue);
+    background: var(--blue-tint)
+}
+
+.related-articles + .article-end {
+    margin-top: 32px
+}
+
 .article-end {
     margin-top: 60px;
     padding-top: 26px;
@@ -813,6 +886,11 @@ footer.shell {
 }
 
 @media (max-width: 650px) {
+    .related-link {
+        padding: 20px;
+        gap: 12px
+    }
+
     .shell {
         width: calc(100% - 40px)
     }

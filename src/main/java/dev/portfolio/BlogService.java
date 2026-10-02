@@ -49,7 +49,26 @@ public class BlogService {
     }
 
     public Post post(String slug) {
-        return posts().stream().filter(post -> post.slug().equals(slug)).findFirst()
+        return findPost(slug, posts());
+    }
+
+    public Article article(String slug) {
+        // Resolve all links against the same published snapshot; never read a path from metadata.
+        var published = posts();
+        var post = findPost(slug, published);
+        Map<String, Post> bySlug = new HashMap<>();
+        published.forEach(candidate -> bySlug.put(candidate.slug(), candidate));
+        var related = post.relatedSlugs().stream()
+                .filter(relatedSlug -> !relatedSlug.equals(slug))
+                .map(bySlug::get).filter(Objects::nonNull).toList();
+        return new Article(post, related);
+    }
+
+    public record Article(Post post, List<Post> relatedPosts) {
+    }
+
+    private Post findPost(String slug, List<Post> published) {
+        return published.stream().filter(post -> post.slug().equals(slug)).findFirst()
                 .orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND));
     }
 
@@ -72,7 +91,10 @@ public class BlogService {
         if (Boolean.parseBoolean(meta.getOrDefault("draft", "false")) || date.isAfter(LocalDate.now(ZoneOffset.UTC)))
             return null;
         String body = normalized.substring(end + 5);
-        return new Post(slug, required(meta, "title"), date, required(meta, "summary"), meta.getOrDefault("tag", "Notes"), Math.max(1, (body.split("\\s+").length + 199) / 200), renderer.render(parser.parse(body)));
+        var related = Arrays.stream(meta.getOrDefault("related", "").split(","))
+                .map(String::strip).filter(value -> !value.isEmpty()).distinct().toList();
+        return new Post(slug, required(meta, "title"), date, required(meta, "summary"), meta.getOrDefault("tag", "Notes"),
+                Math.max(1, (body.split("\\s+").length + 199) / 200), renderer.render(parser.parse(body)), related);
     }
 
     private String required(Map<String, String> meta, String key) {

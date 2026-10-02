@@ -94,11 +94,13 @@ public class PageController {
 
     @GetMapping("/blog/{slug}")
     String post(@PathVariable String slug, Model model, HttpServletRequest request, HttpServletResponse response) {
-        var post = blog.post(slug);
+        var article = blog.article(slug);
+        var post = article.post();
         response.setHeader("Cache-Control", "private, no-store");
         var reader = readers.ensure(request, response);
         model.addAttribute("stats", engagement.stats(slug, reader));
         model.addAttribute("post", post);
+        model.addAttribute("relatedPosts", article.relatedPosts());
         model.addAttribute("page", "blog");
         model.addAttribute("seo", seo.article(post));
         return "post";
