@@ -7,9 +7,29 @@
     <section class="page-heading">
         <h1>My <em>writing.</em></h1>
         <p class="intro">Notes on software and what I learn while building it.</p></section>
-    <section class="writing">
-        <div class="section-head"><h2>Articles<span class="accent">.</span></h2>
-            <span class="count" th:text="${totalPages > 1 ? firstPost + '–' + lastPost + ' of ' + totalPosts + ' articles' : totalPosts + (totalPosts == 1 ? ' article' : ' articles')}"></span>
+    <section class="writing" aria-labelledby="writing-heading">
+        <div class="writing-toolbar">
+            <div class="section-head"><h2 id="writing-heading"><span th:text="${searching ? 'Search results' : 'Articles'}"></span><span class="accent">.</span></h2>
+                <span class="count" th:text="${totalPages > 1 ? firstPost + '–' + lastPost + ' of ' + totalPosts + ' articles' : totalPosts + (totalPosts == 1 ? ' article' : ' articles')}"></span>
+            </div>
+            <form class="article-search" action="/blog" method="get" role="search" aria-label="Article search">
+                <label class="visually-hidden" for="article-query">Search articles</label>
+                <div class="search-controls">
+                    <div class="search-field">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true" focusable="false">
+                            <circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/>
+                        </svg>
+                        <input id="article-query" type="search" name="q" th:value="${query}" th:maxlength="${maxQueryLength}"
+                               placeholder="Find an article…" aria-describedby="search-help" enterkeyhint="search">
+                    </div>
+                    <button class="search-submit" type="submit">Search <span aria-hidden="true">→</span></button>
+                </div>
+                <p class="visually-hidden" id="search-help">Search titles, topics, and article text.</p>
+            </form>
+        </div>
+        <div class="search-context" th:if="${searching}">
+            <p>Results for <strong th:text="${'“' + query + '”'}"></strong></p>
+            <a class="text-link" href="/blog">Clear search <span aria-hidden="true">×</span></a>
         </div>
         <nav th:replace="~{fragments :: pagination('top')}"></nav>
         <div th:replace="~{fragments :: posts}"></div>

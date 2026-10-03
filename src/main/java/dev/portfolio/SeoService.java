@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -58,6 +60,18 @@ public class SeoService {
 
     public String blogPath(int page) {
         return page == 1 ? "/blog" : "/blog?page=" + page;
+    }
+
+    public String blogPath(int page, String query) {
+        if (query.isEmpty()) return blogPath(page);
+        return "/blog?q=" + URLEncoder.encode(query, StandardCharsets.UTF_8) + (page > 1 ? "&page=" + page : "");
+    }
+
+    public Metadata search(String query, int currentPage) {
+        String title = "Search: " + query + (currentPage > 1 ? " — Page " + currentPage : "") + " — " + name;
+        return new Metadata(title, "Search results for “" + query + "” in " + name + "'s articles.",
+                absoluteUrl(blogPath(currentPage, query)), "noindex, follow", "website",
+                absoluteUrl("/images/social-card.png"), absoluteUrl("/#about"), null, null);
     }
 
     public Metadata home() {

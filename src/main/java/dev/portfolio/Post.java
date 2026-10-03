@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public record Post(String slug, String title, LocalDate date, String summary, String tag, int minutes, String html,
-                   List<String> relatedSlugs) {
+                   List<String> relatedSlugs, String searchText) {
     public Post {
         relatedSlugs = List.copyOf(relatedSlugs);
     }

@@ -6,6 +6,10 @@ import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
 import org.commonmark.ext.gfm.tables.TablesExtension;
 import org.commonmark.node.Image;
+import org.commonmark.node.Link;
+import org.commonmark.node.Node;
+import org.commonmark.renderer.NodeRenderer;
+import org.commonmark.renderer.text.TextContentRenderer;
 
 import java.nio.file.*;
 import java.io.IOException;
@@ -22,6 +26,20 @@ public class BlogService {
                 if (node instanceof Image) {
                     attributes.put("loading", "lazy");
                     attributes.put("decoding", "async");
+                }
+            }).build();
+    private final TextContentRenderer textRenderer = TextContentRenderer.builder()
+            .extensions(List.of(TablesExtension.create()))
+            .nodeRendererFactory(context -> new NodeRenderer() {
+                public Set<Class<? extends Node>> getNodeTypes() {
+                    return Set.of(Link.class, Image.class);
+                }
+
+                public void render(Node node) {
+                    // Search link labels and image descriptions, not invisible destinations.
+                    for (Node child = node.getFirstChild(); child != null; child = child.getNext()) {
+                        context.render(child);
+                    }
                 }
             }).build();
 
@@ -50,6 +68,10 @@ public class BlogService {
 
     public Post post(String slug) {
         return findPost(slug, posts());
+    }
+
+    public List<Post> search(String query) {
+        return ArticleSearch.find(posts(), query);
     }
 
     public Article article(String slug) {
@@ -93,8 +115,9 @@ public class BlogService {
         String body = normalized.substring(end + 5);
         var related = Arrays.stream(meta.getOrDefault("related", "").split(","))
                 .map(String::strip).filter(value -> !value.isEmpty()).distinct().toList();
+        var document = parser.parse(body);
         return new Post(slug, required(meta, "title"), date, required(meta, "summary"), meta.getOrDefault("tag", "Notes"),
-                Math.max(1, (body.split("\\s+").length + 199) / 200), renderer.render(parser.parse(body)), related);
+                Math.max(1, (body.split("\\s+").length + 199) / 200), renderer.render(document), related, textRenderer.render(document));
     }
 
     private String required(Map<String, String> meta, String key) {

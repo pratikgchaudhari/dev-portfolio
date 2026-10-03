@@ -64,6 +64,14 @@ Use each target's filename without `.md`, separated by commas. A single slug wor
 
 Duplicates, self-links, and references that do not match a published article are omitted, including drafts and future-dated posts. Use slugs rather than full URLs or Markdown links. If no valid related articles remain, the section is hidden. Links are one-way; add a `related` line to the other post for a reciprocal link. Changes take effect on the next request without rebuilding the JAR.
 
+## Article search
+
+The search field on the Writing page searches all published articles, including their titles, summaries, topics (`tag`), and Markdown text and code. Enter a query and press **Search** or Enter. Searches ignore case, accents, and extra whitespace; every space-separated term must match somewhere in the article. Terms match literally, so programming terms such as `C++` work. Link destinations and Markdown formatting are not indexed.
+
+Title matches rank ahead of topic, summary, and body matches. Equal scores sort by publication date (newest first), then filename. A blank query returns the usual newest-first listing. Search results have the same top/bottom pagination, preserve the query in navigation links, and offer **Clear search** to return to all articles. Starting another search always returns to its first page. No-result searches show a helpful empty state.
+
+Queries can be bookmarked or shared, for example `/blog?q=java+streams`. Search works without JavaScript and reads Markdown changes on each request; it needs no external search service. Queries are limited to 200 characters (longer requests return HTTP 400). Drafts and future posts are excluded before searching and pagination. Search pages emit `noindex, follow`, have their own canonical URLs, and are excluded from the sitemap.
+
 ## Article pagination
 
 The Writing page shows six published articles per page, newest first. When there are more articles, matching Previous/Next links and a page indicator appear above and below the list. The top controls stay visible as you scroll. Following a link from either set lands at the top controls on the new page, ready to continue browsing. The article count shows the visible range and total. Page URLs can be bookmarked: `/blog` is the first page, and `/blog?page=2` is the second.

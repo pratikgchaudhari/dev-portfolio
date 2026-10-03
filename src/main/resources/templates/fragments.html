@@ -81,7 +81,7 @@
      th:id="${position == 'top' ? 'articles' : 'articles-bottom'}"
      th:attr="aria-label=${'Article pagination — ' + position}">
     <a th:if="${currentPage > 1}" class="pagination-link" rel="prev"
-       th:href="${currentPage == 2} ? @{/blog#articles} : @{/blog#articles(page=${currentPage - 1})}">
+       th:href="${previousPageUrl}">
         <span aria-hidden="true">←</span> Previous
     </a>
     <span th:unless="${currentPage > 1}" class="pagination-link is-disabled" aria-disabled="true">
@@ -89,14 +89,21 @@
     </span>
     <span class="pagination-status" aria-current="page" th:text="${'Page ' + currentPage + ' of ' + totalPages}"></span>
     <a th:if="${currentPage < totalPages}" class="pagination-link" rel="next"
-       th:href="@{/blog#articles(page=${currentPage + 1})}">
+       th:href="${nextPageUrl}">
         Next <span aria-hidden="true">→</span>
     </a>
     <span th:unless="${currentPage < totalPages}" class="pagination-link is-disabled" aria-disabled="true">
         Next <span aria-hidden="true">→</span>
     </span>
 </nav>
-<div th:fragment="posts" class="post-list"><p th:if="${posts.isEmpty()}" class="empty">No articles yet.</p><a class="post-row" th:each="post : ${posts}" th:href="@{/blog/{slug}(slug=${post.slug})}">
+<div th:fragment="posts" class="post-list">
+    <p th:if="${posts.isEmpty() and !searching}" class="empty">No articles yet.</p>
+    <div th:if="${posts.isEmpty() and searching}" class="search-empty">
+        <h3>No articles found</h3>
+        <p>Try fewer words or a different topic.</p>
+        <a class="text-link" href="/blog">View all articles <span aria-hidden="true">→</span></a>
+    </div>
+    <a class="post-row" th:each="post : ${posts}" th:href="@{/blog/{slug}(slug=${post.slug})}">
     <div class="post-date">
         <time th:datetime="${post.date}" th:text="${post.displayDate()}"></time>
         <span th:text="${post.minutes + ' min read'}"></span></div>

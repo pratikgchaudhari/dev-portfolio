@@ -55,11 +55,13 @@ public class PageController {
     }
 
     @GetMapping("/blog")
-    String blog(@RequestParam(name = "page", defaultValue = "1") int requestedPage, Model model) {
-        if (requestedPage < 1) {
+    String blog(@RequestParam(name = "page", defaultValue = "1") int requestedPage,
+                @RequestParam(name = "q", defaultValue = "") String rawQuery, Model model) {
+        if (requestedPage < 1 || rawQuery.length() > ArticleSearch.MAX_QUERY_LENGTH) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        var posts = blog.posts();
+        String query = ArticleSearch.normalizeQuery(rawQuery);
+        var posts = blog.search(query);
         int totalPosts = posts.size();
         int totalPages = totalPosts == 0 ? 1 : 1 + (totalPosts - 1) / postsPerPage;
         if (requestedPage > totalPages) {
@@ -74,8 +76,14 @@ public class PageController {
         model.addAttribute("totalPosts", totalPosts);
         model.addAttribute("firstPost", totalPosts == 0 ? 0 : from + 1);
         model.addAttribute("lastPost", to);
+        model.addAttribute("query", query);
+        model.addAttribute("searching", !query.isEmpty());
+        model.addAttribute("maxQueryLength", ArticleSearch.MAX_QUERY_LENGTH);
+        model.addAttribute("previousPageUrl", requestedPage > 1 ? seo.blogPath(requestedPage - 1, query) + "#articles" : null);
+        model.addAttribute("nextPageUrl", requestedPage < totalPages ? seo.blogPath(requestedPage + 1, query) + "#articles" : null);
         model.addAttribute("page", "blog");
-        model.addAttribute("seo", seo.writing(requestedPage, totalPages, posts.subList(from, to)));
+        model.addAttribute("seo", query.isEmpty() ? seo.writing(requestedPage, totalPages, posts.subList(from, to))
+                : seo.search(query, requestedPage));
         return "blog";
     }
 
