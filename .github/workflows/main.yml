@@ -52,4 +52,4 @@ jobs:
             sudo install -o springapp -g springapp -m 644 /opt/notnullpratik-releases/app.jar /opt/notnullpratik/app.jar
             sudo systemctl restart notnullpratik
             sleep 5
-            systemctl is-active --quiet springapp
+            systemctl is-active --quiet notnullpratik
