@@ -6,7 +6,7 @@
 <main id="main" class="shell bookshelf">
     <section class="page-heading">
         <h1>My <em>bookshelf.</em></h1>
-        <p class="intro">What I’m reading now, and what I’ve read along the way.</p>
+        <p class="intro">From how software works to how companies are built—with a little fiction in between. Here’s what’s on my shelf.</p>
     </section>
     <section class="reading-now" aria-labelledby="reading-title">
         <div class="section-head">
@@ -14,7 +14,7 @@
             <span class="count"
                   th:text="${shelf.currentlyReading.size() + (shelf.currentlyReading.size() == 1 ? ' book' : ' books')}"></span>
         </div>
-        <p class="empty" th:if="${shelf.currentlyReading.isEmpty()}">Nothing in progress right now.</p>
+        <p class="empty" th:if="${shelf.currentlyReading.isEmpty()}">Between books. The next read will appear here.</p>
         <ul class="current-books">
             <li th:each="book : ${shelf.currentlyReading}">
                 <a class="current-book" th:href="${book.url}" target="_blank" rel="noopener noreferrer">

@@ -76,7 +76,7 @@ public class SeoService {
 
     public Metadata home() {
         String title = name + " — " + role;
-        String description = name + "'s portfolio: Java and Spring Boot engineering, experience across backend systems and the web, and practical software development articles.";
+        String description = "Meet " + name + ", a software engineer in Mumbai. Explore a career from education to capital markets, plus articles on Java, Spring Boot, and the web.";
         var profile = page("ProfilePage", "/", title, description);
         profile.put("mainEntity", person());
         return metadata(title, description, "/", "website", null, profile);
@@ -84,7 +84,7 @@ public class SeoService {
 
     public Metadata writing(int currentPage, int totalPages, List<Post> posts) {
         String title = (currentPage > 1 ? "Writing — Page " + currentPage : "Writing") + " — " + name;
-        String description = "Software engineering articles by " + name + ": Java, Spring Boot, React, Vue.js and Linux."
+        String description = "Explore the details behind the code with " + name + ": Java internals, Spring Boot, React, Vue.js, and Linux, explained with practical examples."
                 + (currentPage > 1 ? " Page " + currentPage + " of " + totalPages + "." : "");
         var collection = page("CollectionPage", blogPath(currentPage), title, description);
         var entries = new ArrayList<Map<String, Object>>();
@@ -99,7 +99,7 @@ public class SeoService {
 
     public Metadata books() {
         String title = "Bookshelf — " + name;
-        String description = "Explore " + name + "'s bookshelf: books currently in progress and finished reads on software, business, technology and fiction.";
+        String description = "From software internals to stories behind tech companies: browse " + name + "'s current reads and finished books on software, business, and fiction.";
         return metadata(title, description, "/books", "website", null,
                 page("CollectionPage", "/books", title, description));
     }
