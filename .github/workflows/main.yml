@@ -49,7 +49,7 @@ jobs:
             set -euo pipefail
             cd /opt/notnullpratik
             cp -a app.jar app.jar.prev 2>/dev/null || true
-            install -o springapp -g springapp -m 644 /opt/notnullpratik-releases/app.jar app.jar
+            install -o springapp -g springapp -m 644 /opt/notnullpratik-releases/app.jar /opt/notnullpratik/app.jar
             sudo systemctl restart notnullpratik
             sleep 5
             systemctl is-active --quiet springapp
