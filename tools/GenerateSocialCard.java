@@ -29,7 +29,7 @@ class GenerateSocialCard {
         canvas.drawString("Building software.", 84, 320);
         canvas.setColor(new Color(0x264beb));
         canvas.setFont(new Font(Font.SERIF, Font.ITALIC, 58));
-        canvas.drawString("Sharing what I learn.", 82, 390);
+        canvas.drawString("Always asking why.", 82, 390);
         canvas.setColor(new Color(0xdde3eb));
         canvas.drawLine(84, 472, 1116, 472);
         canvas.setColor(new Color(0x606b7b));
