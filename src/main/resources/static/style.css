@@ -124,15 +124,48 @@ a:hover {
 }
 
 .brand {
-    font-family: Manrope, sans-serif;
-    font-weight: 800;
-    font-size: 21px;
-    letter-spacing: -.7px
+    display: inline-flex;
+    align-items: center;
+    /* Reserve the complete wordmark so typing never shifts the navigation. */
+    width: calc(17ch + 2px);
+    min-height: 44px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.5;
+    letter-spacing: 0;
+    font-variant-ligatures: none
 }
 
-.brand:after {
-    content: '.';
+.brand-type {
+    display: block;
+    box-sizing: content-box;
+    width: 17ch;
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 2px solid transparent
+}
+
+.brand-domain {
     color: var(--blue)
+}
+
+/* A brief introduction on each page, followed by a still, readable logo. */
+@media (prefers-reduced-motion: no-preference) {
+    .brand-type {
+        animation: brand-type-in 1.7s steps(17, end) .2s both,
+                   brand-caret .6s step-end 5
+    }
+}
+
+@keyframes brand-type-in {
+    from { width: 0 }
+    to { width: 17ch }
+}
+
+@keyframes brand-caret {
+    0%, 100% { border-right-color: transparent }
+    50% { border-right-color: var(--blue) }
 }
 
 nav {
@@ -185,7 +218,9 @@ nav a.active {
 
 .error-appearance {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
     padding-top: 24px;
 }
 
@@ -1083,7 +1118,7 @@ footer.shell {
     }
 
     .brand {
-        font-size: 18px
+        font-size: clamp(16px, 4.5vw, 18px)
     }
 
     .hero {

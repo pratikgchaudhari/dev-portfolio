@@ -42,8 +42,11 @@
 <svg th:fragment="eyeIcon" class="stat-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
     <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>
 </svg>
+<a th:fragment="brandLogo" class="brand" href="/" aria-label="notnullpratik.dev — Home">
+    <span class="brand-type" aria-hidden="true">notnullpratik<span class="brand-domain">.dev</span></span>
+</a>
 <header th:fragment="header"><a class="skip" href="#main">Skip to content</a>
-    <div class="shell nav"><a class="brand" href="/" th:text="${name}">Your Name</a>
+    <div class="shell nav"><a th:replace="~{fragments :: brandLogo}"></a>
         <nav aria-label="Main navigation"><a href="/" th:classappend="${page == 'home'} ? 'active'"
                                              th:attr="aria-current=${page == 'home' ? 'page' : null}">Home</a><a
                 href="/blog" th:classappend="${page == 'blog'} ? 'active'"

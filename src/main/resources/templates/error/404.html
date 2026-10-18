@@ -10,7 +10,10 @@
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<div class="shell error-appearance"><button th:replace="~{fragments :: themeToggle}"></button></div>
+<div class="shell error-appearance">
+    <a th:replace="~{fragments :: brandLogo}"></a>
+    <button th:replace="~{fragments :: themeToggle}"></button>
+</div>
 <main class="shell page-heading">
     <p class="eyebrow">404</p>
     <h1>Page not <em>found.</em></h1>
