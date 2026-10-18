@@ -150,11 +150,11 @@ a:hover {
     color: var(--blue)
 }
 
-/* A brief introduction on each page, followed by a still, readable logo. */
+/* Type the wordmark once; keep the cursor blinking after it finishes. */
 @media (prefers-reduced-motion: no-preference) {
     .brand-type {
         animation: brand-type-in 1.7s steps(17, end) .2s both,
-                   brand-caret .6s step-end 5
+                   brand-caret .6s step-end infinite
     }
 }
 
