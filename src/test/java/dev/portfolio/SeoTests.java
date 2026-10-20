@@ -59,8 +59,13 @@ class SeoTests extends DatabaseTestSupport {
                     .contains("href=\"https://notnullpratik.dev" + path + "\"",
                             "name=\"robots\" content=\"index, follow, max-image-preview:large\"",
                             "property=\"og:url\" content=\"https://notnullpratik.dev" + path + "\"",
-                            "name=\"twitter:card\" content=\"summary_large_image\"",
-                            "https://notnullpratik.dev/images/social-card.png");
+                            "name=\"twitter:card\" content=\"summary_large_image\"");
+            if (path.equals("/blog/first")) {
+                assertThat(html).contains("https://notnullpratik.dev/images/articles/first.png?v=")
+                        .doesNotContain("/images/social-card.png");
+            } else {
+                assertThat(html).contains("https://notnullpratik.dev/images/social-card.png");
+            }
             assertThat(structuredData(html).get("@graph").get(0).get("@type").asText()).isEqualTo("WebSite");
         }
         var profile = structuredData(html("/")).get("@graph").get(1);

@@ -19,13 +19,13 @@
     <meta th:if="${seo.imageUrl != null}" property="og:image:width" content="1200">
     <meta th:if="${seo.imageUrl != null}" property="og:image:height" content="630">
     <meta th:if="${seo.imageUrl != null}" property="og:image:type" content="image/png">
-    <meta th:if="${seo.imageUrl != null}" property="og:image:alt" th:content="${name + ' — Building software. Sharing what I learn.'}">
+    <meta th:if="${seo.imageUrl != null}" property="og:image:alt" th:content="${seo.imageAlt}">
     <meta name="twitter:card" th:content="${seo.imageUrl != null ? 'summary_large_image' : 'summary'}">
     <meta name="twitter:creator" content="@pratikc_89">
     <meta name="twitter:title" th:content="${seo.title}">
     <meta name="twitter:description" th:content="${seo.description}">
     <meta th:if="${seo.imageUrl != null}" name="twitter:image" th:content="${seo.imageUrl}">
-    <meta th:if="${seo.imageUrl != null}" name="twitter:image:alt" th:content="${name + ' — Building software. Sharing what I learn.'}">
+    <meta th:if="${seo.imageUrl != null}" name="twitter:image:alt" th:content="${seo.imageAlt}">
     <meta th:if="${seo.published != null}" property="article:published_time" th:content="${seo.published}">
     <meta th:if="${seo.published != null and seo.authorUrl != null}" property="article:author" th:content="${seo.authorUrl}">
     <script th:if="${seo.structuredData != null}" type="application/ld+json" th:utext="${seo.structuredData}"></script>

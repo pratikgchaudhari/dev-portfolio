@@ -39,6 +39,7 @@ class SeoConfigurationTests {
     }
 
     private SeoService service(String origin, boolean indexing) {
-        return new SeoService(origin, indexing, "Pratik Chaudhari", "Senior Software Engineer", new ObjectMapper());
+        return new SeoService(origin, indexing, "Pratik Chaudhari", "Senior Software Engineer", new ObjectMapper(),
+                new ArticlePreviewService("Pratik Chaudhari", origin));
     }
 }

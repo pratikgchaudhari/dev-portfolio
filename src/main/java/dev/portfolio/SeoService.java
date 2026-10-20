@@ -21,16 +21,18 @@ public class SeoService {
     private final String name;
     private final String role;
     private final ObjectMapper json;
+    private final ArticlePreviewService previews;
 
     public SeoService(@Value("${portfolio.site-url:}") String siteUrl,
                       @Value("${portfolio.indexing-enabled:true}") boolean indexingEnabled,
                       @Value("${portfolio.name}") String name,
-                      @Value("${portfolio.role}") String role, ObjectMapper json) {
+                      @Value("${portfolio.role}") String role, ObjectMapper json, ArticlePreviewService previews) {
         this.origin = validateOrigin(siteUrl);
         this.indexingEnabled = indexingEnabled;
         this.name = name;
         this.role = role;
         this.json = json;
+        this.previews = previews;
     }
 
     static String validateOrigin(String value) {
@@ -71,7 +73,7 @@ public class SeoService {
         String title = "Search: " + query + (currentPage > 1 ? " — Page " + currentPage : "") + " — " + name;
         return new Metadata(title, "Search results for “" + query + "” in " + name + "'s articles.",
                 absoluteUrl(blogPath(currentPage, query)), "noindex, follow", "website",
-                absoluteUrl("/images/social-card.png"), absoluteUrl("/#about"), null, null);
+                absoluteUrl("/images/social-card.png"), defaultImageAlt(), absoluteUrl("/#about"), null, null);
     }
 
     public Metadata home() {
@@ -112,11 +114,26 @@ public class SeoService {
         article.put("articleSection", post.tag());
         article.put("author", person());
         article.put("mainEntityOfPage", absoluteUrl(path));
-        return metadata(post.title() + " — " + name, post.summary(), path, "article", post.date(), article);
+        String imagePath = previews.path(post);
+        article.put("image", object("@type", "ImageObject", "url", absoluteUrl(imagePath),
+                "width", ArticlePreviewService.WIDTH, "height", ArticlePreviewService.HEIGHT,
+                "caption", previews.alt(post)));
+        return metadata(post.title() + " — " + name, post.summary(), path, "article", post.date(), article,
+                imagePath, previews.alt(post));
     }
 
     private Metadata metadata(String title, String description, String path, String type,
                               LocalDate published, Map<String, Object> page) {
+        return metadata(title, description, path, type, published, page,
+                "/images/social-card.png", defaultImageAlt());
+    }
+
+    private String defaultImageAlt() {
+        return name + " — Building software. Always asking why.";
+    }
+
+    private Metadata metadata(String title, String description, String path, String type,
+                              LocalDate published, Map<String, Object> page, String imagePath, String imageAlt) {
         String data = null;
         if (!origin.isEmpty()) {
             var website = object("@type", "WebSite", "@id", absoluteUrl("/#website"),
@@ -125,7 +142,7 @@ public class SeoService {
         }
         return new Metadata(title, description, absoluteUrl(path),
                 isIndexable() ? "index, follow, max-image-preview:large" : "noindex, follow",
-                type, absoluteUrl("/images/social-card.png"), absoluteUrl("/#about"), published, data);
+                type, absoluteUrl(imagePath), imageAlt, absoluteUrl("/#about"), published, data);
     }
 
     private Map<String, Object> page(String type, String path, String title, String description) {
@@ -159,6 +176,6 @@ public class SeoService {
     }
 
     public record Metadata(String title, String description, String canonicalUrl, String robots,
-                           String type, String imageUrl, String authorUrl, LocalDate published,
+                           String type, String imageUrl, String imageAlt, String authorUrl, LocalDate published,
                            String structuredData) {}
 }

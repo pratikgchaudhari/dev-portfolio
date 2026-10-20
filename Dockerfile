@@ -5,6 +5,8 @@ COPY src src
 RUN mvn -B package -DskipTests
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+# Java2D renders article preview PNGs without a display, using installed fonts.
+RUN apt-get update && apt-get install -y --no-install-recommends fontconfig fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
 COPY --from=build /build/target/portfolio-1.0.0.jar app.jar
 COPY content content
 RUN mkdir -p /app/data && chown 10001:10001 /app/data
