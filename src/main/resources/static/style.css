@@ -708,7 +708,7 @@ h2 {
     font-size: 14px
 }
 
-.heart-button {
+.heart-button, .share-button {
     appearance: none;
     font: inherit;
     font-weight: 600;
@@ -838,6 +838,121 @@ h2 {
 .heart-button:disabled {
     cursor: default;
     opacity: .6
+}
+
+.share-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 142px;
+    margin-left: auto
+}
+
+.share-button:hover, .share-button.is-copied {
+    color: var(--blue);
+    border-color: var(--blue);
+    background: var(--blue-tint)
+}
+
+.share-button:active {
+    transform: scale(.96)
+}
+
+.share-glyph {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px
+}
+
+.share-glyph svg {
+    grid-area: 1 / 1;
+    transition: opacity .16s ease, transform .25s ease
+}
+
+.share-check-icon {
+    opacity: 0;
+    transform: scale(.5)
+}
+
+.is-copied .share-link-icon {
+    opacity: 0;
+    transform: scale(.5) rotate(-20deg)
+}
+
+.is-copied .share-check-icon {
+    opacity: 1;
+    transform: scale(1)
+}
+
+.share-glyph::after {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none
+}
+
+.share-fallback {
+    flex-basis: 100%;
+    min-width: 0
+}
+
+.share-fallback label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px
+}
+
+.share-fallback input {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--ink);
+    font: inherit;
+    font-size: 16px
+}
+
+.share-button[hidden], .share-fallback[hidden] {
+    display: none
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .share-button.is-copied {
+        animation: share-pop .45s cubic-bezier(.2, .8, .2, 1)
+    }
+
+    .is-copied .share-glyph::after {
+        animation: share-ring .6s ease-out
+    }
+
+    .is-copied .share-check-icon path {
+        stroke-dasharray: 24;
+        animation: share-check .35s ease-out
+    }
+}
+
+@keyframes share-pop {
+    0%, 100% { transform: scale(1) }
+    35% { transform: scale(1.05) }
+    65% { transform: scale(.98) }
+}
+
+@keyframes share-ring {
+    from { opacity: .6; transform: scale(.55) }
+    to { opacity: 0; transform: scale(1.5) }
+}
+
+@keyframes share-check {
+    from { stroke-dashoffset: 24 }
+    to { stroke-dashoffset: 0 }
 }
 
 .engagement-message {
@@ -1205,6 +1320,10 @@ footer.shell {
         padding-top: 36px
     }
 
+    .share-button {
+        margin-left: 0
+    }
+
     .prose {
         font-size: 17px
     }
@@ -1219,13 +1338,16 @@ footer.shell {
     .heart-button .heart-icon,
     .heart-button [data-like-count],
     .heart-reaction::before,
-    .heart-reaction::after {
+    .heart-reaction::after,
+    .share-button,
+    .share-glyph svg {
         animation: none !important;
         transition: none !important
     }
 
     .heart-button:active:not(:disabled),
-    .heart-button:hover:not(:disabled) .heart-icon {
+    .heart-button:hover:not(:disabled) .heart-icon,
+    .share-button:active {
         transform: none
     }
 }

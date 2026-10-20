@@ -22,7 +22,26 @@
                 <span class="view-count"><svg th:replace="~{fragments :: eyeIcon}"></svg>
                     <span data-view-count th:text="${stats.views + (stats.views == 1 ? ' view' : ' views')}"></span>
                 </span>
+                <button class="share-button" type="button" data-share-article hidden
+                        th:attr="data-share-url=${seo.canonicalUrl != null ? seo.canonicalUrl : '/blog/' + post.slug}"
+                        aria-describedby="article-share-help" title="Copy article link">
+                    <span class="share-glyph" aria-hidden="true">
+                        <svg class="share-link-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <path d="m10 13 4-4m-6 6-1 1a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0m2 2 1-1a4.2 4.2 0 0 1 6 6l-4 4a4.2 4.2 0 0 1-6 0" transform="translate(1 2)"/>
+                        </svg>
+                        <svg class="share-check-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                            <path d="m5 12 4 4L19 6"/>
+                        </svg>
+                    </span>
+                    <span data-share-label>Share</span>
+                </button>
+                <span class="visually-hidden" id="article-share-help">Copy this article’s link to your clipboard.</span>
+                <span class="visually-hidden" role="status" aria-live="polite" data-share-status></span>
                 <p class="engagement-message" role="status" aria-live="polite" data-engagement-message></p>
+                <div class="share-fallback" data-share-fallback hidden>
+                    <label for="article-share-url">Copy the link below:</label>
+                    <input id="article-share-url" type="text" readonly data-share-input spellcheck="false">
+                </div>
                 <noscript><p class="engagement-message">Enable JavaScript to like this article.</p></noscript>
             </div>
         </header>
@@ -48,5 +67,6 @@
 </main>
 <footer th:replace="~{fragments :: footer}"></footer>
 <script src="/engagement.js" defer></script>
+<script src="/share.js" defer></script>
 </body>
 </html>

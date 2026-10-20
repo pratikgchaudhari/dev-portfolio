@@ -75,6 +75,16 @@ class SeoTests extends DatabaseTestSupport {
     }
 
     @Test
+    void articleShareCopiesTheCanonicalUrlWithoutTrackingParameters() throws Exception {
+        String html = html("/blog/first?utm_source=newsletter");
+        var button = Pattern.compile("<button[^>]+data-share-article[^>]*>").matcher(html);
+        assertThat(button.find()).isTrue();
+        assertThat(button.group()).contains("hidden", "data-share-url=\"https://notnullpratik.dev/blog/first\"");
+        assertThat(html).contains("data-share-status", "data-share-fallback", "src=\"/share.js\"");
+        assertThat(html("/blog")).doesNotContain("data-share-article", "src=\"/share.js\"");
+    }
+
+    @Test
     void paginationUsesItsOwnCanonicalAndDiscardsTrackingParametersAndHostHeaders() throws Exception {
         var response = mvc.perform(get("/blog").param("page", "2").param("utm_source", "test")
                         .header("Host", "untrusted.example").header("X-Forwarded-Host", "untrusted.example"))

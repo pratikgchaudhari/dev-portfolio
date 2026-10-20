@@ -120,6 +120,10 @@ Implementation references: Google's [pagination guidance](https://developers.goo
 
 ## Article likes and views
 
+Each article also has a **Share** button that copies its canonical public URL without tracking parameters or a fragment. A short checkmark animation and “Link copied” confirmation follow a successful copy. Reduced-motion preferences disable the animation. If browser clipboard access is unavailable, the page tries legacy copying, then shows a selected link for manual copying. The button is hidden when JavaScript is unavailable. Sharing copies a link; it does not post to a social account.
+
+Run the clipboard interaction tests with `node --test src/test/js/share.test.cjs` (Node.js 18+). The app itself does not require Node.js.
+
 Each article has a heart button that toggles a reader's like, plus a view count. Both totals also appear on the Writing page. A random, HttpOnly, SameSite browser cookie remembers the reader for up to one year; no sign-in is required. Each browser can like an article once and remove that like later. Clearing cookies or using another browser creates a new reader identity, so these are anonymous engagement counts, not verified unique people.
 
 A view is recorded when an article is open in a visible browser tab with JavaScript enabled. Reopening or refreshing the same article within 30 minutes does not add another view for that browser. Listing pages, metadata requests, and HEAD requests do not count. Drafts, future posts, and missing articles cannot receive likes or views. Without JavaScript the article and saved counts remain readable; reactions require JavaScript and cookies.
