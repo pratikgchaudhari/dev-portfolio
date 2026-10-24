@@ -22,10 +22,6 @@
                 <span class="view-count"><svg th:replace="~{fragments :: eyeIcon}"></svg>
                     <span data-view-count th:text="${stats.views + (stats.views == 1 ? ' view' : ' views')}"></span>
                 </span>
-                <span class="share-count" title="Successful link copies using the Share button">
-                    <svg th:replace="~{fragments :: shareIcon}"></svg>
-                    <span data-share-count th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
-                </span>
                 <button class="share-button" type="button" data-share-article hidden
                         th:attr="data-share-url=${seo.canonicalUrl != null ? seo.canonicalUrl : '/blog/' + post.slug}"
                         aria-describedby="article-share-help" title="Copy article link">
@@ -37,7 +33,10 @@
                             <path d="m5 12 4 4L19 6"/>
                         </svg>
                     </span>
-                    <span data-share-label>Share</span>
+                    <span class="share-copy">
+                        <span data-share-label>Share</span>
+                        <span data-share-count th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
+                    </span>
                 </button>
                 <span class="visually-hidden" id="article-share-help">Copy this article’s link to your clipboard.</span>
                 <span class="visually-hidden" role="status" aria-live="polite" data-share-status></span>
@@ -47,8 +46,14 @@
                     <label for="article-share-url">Copy the link below:</label>
                     <input id="article-share-url" type="text" readonly data-share-input spellcheck="false">
                 </div>
-                <noscript><p class="engagement-message">Enable JavaScript to like this article.</p></noscript>
+                <noscript>
+                    <span class="share-count">
+                        <svg th:replace="~{fragments :: shareIcon}"></svg>
+                        <span th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
+                    </span>
+                </noscript>
             </div>
+            <noscript><p class="engagement-message">Enable JavaScript to like or share this article.</p></noscript>
         </header>
         <div class="prose" th:utext="${post.html}"></div>
     </article>

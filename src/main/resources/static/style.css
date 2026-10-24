@@ -848,6 +848,24 @@ h2 {
     margin-left: auto
 }
 
+.share-copy {
+    display: grid;
+    text-align: left;
+    line-height: 1.4
+}
+
+.share-copy [data-share-count] {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 400
+}
+
+.article-engagement [data-like-count],
+.article-engagement [data-view-count],
+.article-engagement [data-share-count] {
+    font-variant-numeric: tabular-nums
+}
+
 .share-button:hover, .share-button.is-copied {
     color: var(--blue);
     border-color: var(--blue);
@@ -1320,8 +1338,96 @@ footer.shell {
         padding-top: 36px
     }
 
-    .share-button {
-        margin-left: 0
+    .article-engagement {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        align-items: stretch;
+        gap: 10px;
+        padding: 8px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--surface)
+    }
+
+    .article-engagement > .heart-button,
+    .article-engagement > .view-count,
+    .article-engagement > .share-button,
+    .article-engagement .share-count {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 0;
+        min-height: 80px;
+        margin: 0;
+        padding: 12px 4px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        font-size: 12px;
+        line-height: 18px;
+        text-align: center
+    }
+
+    .article-engagement > .heart-button {
+        background: var(--paper);
+        border-color: var(--line)
+    }
+
+    .article-engagement > .heart-button[aria-pressed="true"] {
+        background: var(--heart-bg);
+        border-color: var(--heart-line)
+    }
+
+    .article-engagement > .share-button {
+        color: var(--blue);
+        background: var(--blue-tint)
+    }
+
+    .article-engagement .heart-reaction,
+    .article-engagement .stat-icon {
+        width: 20px;
+        height: 20px
+    }
+
+    .article-engagement .share-copy {
+        display: grid;
+        width: 100%;
+        text-align: center;
+        line-height: 18px
+    }
+
+    .article-engagement .share-copy > span {
+        grid-area: 1 / 1;
+        font: inherit;
+        color: inherit;
+        overflow-wrap: anywhere
+    }
+
+    /* Both labels reserve the same space, so copying never shifts the controls. */
+    .article-engagement [data-share-label],
+    .article-engagement .is-copied [data-share-count] {
+        opacity: 0
+    }
+
+    .article-engagement .is-copied [data-share-label] {
+        opacity: 1
+    }
+
+    .article-engagement > .heart-button:focus-visible,
+    .article-engagement > .share-button:focus-visible {
+        outline-width: 2px;
+        outline-offset: 2px
+    }
+
+    .article-engagement > .engagement-message,
+    .article-engagement > .share-fallback {
+        grid-column: 1 / -1;
+        padding: 2px 4px
+    }
+
+    .article-engagement > .share-button[hidden] {
+        display: none
     }
 
     .prose {
