@@ -5,6 +5,7 @@
     const button = panel.querySelector('.heart-button');
     const likeCount = panel.querySelector('[data-like-count]');
     const viewCount = panel.querySelector('[data-view-count]');
+    const shareCount = panel.querySelector('[data-share-count]');
     const message = panel.querySelector('[data-engagement-message]');
     let busy = false;
     let viewRequested = false;
@@ -25,6 +26,9 @@
         button.setAttribute('aria-label', stats.liked ? 'Unlike this article' : 'Like this article');
         likeCount.textContent = `${stats.likes} ${stats.likes === 1 ? 'like' : 'likes'}`;
         viewCount.textContent = `${stats.views} ${stats.views === 1 ? 'view' : 'views'}`;
+        // A delayed view/like response must not undo a newer share total.
+        const shares = Math.max(parseInt(shareCount.textContent, 10) || 0, stats.shares);
+        shareCount.textContent = `${shares} ${shares === 1 ? 'share' : 'shares'}`;
     }
 
     async function request(path, method, body) {

@@ -49,7 +49,7 @@ class EngagementServiceTests {
         var first = UUID.randomUUID();
         var second = UUID.randomUUID();
         assertThat(service.stats("article", first)).isEqualTo(ArticleStats.EMPTY);
-        assertThat(service.setLiked("article", first, true)).isEqualTo(new ArticleStats(0, 1, true));
+        assertThat(service.setLiked("article", first, true)).isEqualTo(new ArticleStats(0, 1, 0, true));
         assertThat(service.setLiked("article", first, true).likes()).isEqualTo(1);
         assertThat(service.stats("article", second).liked()).isFalse();
         assertThat(service.setLiked("article", second, true).likes()).isEqualTo(2);
@@ -62,31 +62,59 @@ class EngagementServiceTests {
     void viewsAreDeduplicatedForThirtyMinutesAndDoNotResetLikes() {
         var reader = UUID.randomUUID();
         service.setLiked("article", reader, true);
-        assertThat(service.recordView("article", reader)).isEqualTo(new ArticleStats(1, 1, true));
+        assertThat(service.recordView("article", reader)).isEqualTo(new ArticleStats(1, 1, 0, true));
         clock.advance(Duration.ofMinutes(29));
         assertThat(service.recordView("article", reader).views()).isEqualTo(1);
         clock.advance(Duration.ofMinutes(1));
         assertThat(service.recordView("article", reader).views()).isEqualTo(2);
         assertThat(service.recordView("article", UUID.randomUUID()).views()).isEqualTo(3);
-        assertThat(service.setLiked("article", reader, false)).isEqualTo(new ArticleStats(3, 0, false));
+        assertThat(service.setLiked("article", reader, false)).isEqualTo(new ArticleStats(3, 0, 0, false));
         assertThat(service.recordView("another", reader).views()).isEqualTo(1);
     }
 
     @Test
-    void concurrentRequestsFromOneReaderCountOnce() throws Exception {
+    void sharesCountEveryCopyAndRemainIsolatedFromOtherArticlesAndReactions() {
+        var reader = UUID.randomUUID();
+        assertThat(service.recordShare("article", reader)).isEqualTo(new ArticleStats(0, 0, 1, false));
+        assertThat(service.recordShare("article", reader).shares()).isEqualTo(2);
+        assertThat(service.recordShare("article", UUID.randomUUID()).shares()).isEqualTo(3);
+        service.recordView("article", reader);
+        service.setLiked("article", reader, true);
+        assertThat(service.stats("article", reader)).isEqualTo(new ArticleStats(1, 1, 3, true));
+        assertThat(service.stats("another", reader)).isEqualTo(ArticleStats.EMPTY);
+    }
+
+    @Test
+    void upgradesExistingDatabaseAndRepeatedStartupPreservesAllCounts() {
+        var reader = UUID.randomUUID();
+        service.recordView("article", reader);
+        service.setLiked("article", reader, true);
+        // Recreate the pre-share schema with existing views, visits, and likes.
+        jdbc.execute("ALTER TABLE article_stats DROP COLUMN shares");
+        var schema = new ResourceDatabasePopulator(new ClassPathResource("schema.sql"));
+        schema.execute(jdbc.getDataSource());
+        assertThat(service.stats("article", reader)).isEqualTo(new ArticleStats(1, 1, 0, true));
+        service.recordShare("article", reader);
+        schema.execute(jdbc.getDataSource());
+        assertThat(service.recordView("article", reader)).isEqualTo(new ArticleStats(1, 1, 1, true));
+    }
+
+    @Test
+    void concurrentCopiesCountSeparatelyWhileViewsAndLikesAreDeduplicated() throws Exception {
         var reader = UUID.randomUUID();
         var pool = Executors.newFixedThreadPool(8);
         try {
             var tasks = IntStream.range(0, 32).<Callable<Void>>mapToObj(i -> () -> {
                 service.recordView("article", reader);
                 service.setLiked("article", reader, true);
+                service.recordShare("article", reader);
                 return null;
             }).toList();
             for (var future : pool.invokeAll(tasks)) future.get();
         } finally {
             pool.shutdownNow();
         }
-        assertThat(service.stats("article", reader)).isEqualTo(new ArticleStats(1, 1, true));
+        assertThat(service.stats("article", reader)).isEqualTo(new ArticleStats(1, 1, 32, true));
     }
 
     @Test
@@ -97,13 +125,14 @@ class EngagementServiceTests {
                 var reader = UUID.randomUUID();
                 service.recordView("article", reader);
                 service.setLiked("article", reader, true);
+                service.recordShare("article", reader);
                 return null;
             }).toList();
             for (var future : pool.invokeAll(tasks)) future.get();
         } finally {
             pool.shutdownNow();
         }
-        assertThat(service.stats("article", null)).isEqualTo(new ArticleStats(24, 24, false));
+        assertThat(service.stats("article", null)).isEqualTo(new ArticleStats(24, 24, 24, false));
     }
 
     @Test
@@ -114,8 +143,10 @@ class EngagementServiceTests {
         var original = create(url);
         original.recordView("article", reader);
         original.setLiked("article", reader, true);
+        original.recordShare("article", reader);
+        original.recordShare("article", reader);
         var reopened = create(url);
-        assertThat(reopened.stats("article", reader)).isEqualTo(new ArticleStats(1, 1, true));
+        assertThat(reopened.stats("article", reader)).isEqualTo(new ArticleStats(1, 1, 2, true));
         assertThat(reopened.recordView("article", reader).views()).isEqualTo(1);
         assertThat(reopened.setLiked("article", reader, true).likes()).isEqualTo(1);
     }

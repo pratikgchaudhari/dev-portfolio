@@ -118,19 +118,23 @@ After deploying the rebuilt JAR, verify ownership of `notnullpratik.dev` in [Goo
 
 Implementation references: Google's [pagination guidance](https://developers.google.com/search/docs/specialty/ecommerce/pagination-and-incremental-page-loading), [sitemap guidance](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), and [article structured-data guidance](https://developers.google.com/search/docs/appearance/structured-data/article).
 
-## Article likes and views
+## Article likes, views, and shares
 
 Each article also has a **Share** button that copies its canonical public URL without tracking parameters or a fragment. A short checkmark animation and “Link copied” confirmation follow a successful copy. Reduced-motion preferences disable the animation. If browser clipboard access is unavailable, the page tries legacy copying, then shows a selected link for manual copying. The button is hidden when JavaScript is unavailable. Sharing copies a link; it does not post to a social account.
 
+The share count records each successful copy through this button, including repeat copies by the same reader. Clipboard failures, merely selecting the manual fallback link, page loads, and copying from the address bar do not count. The total measures link copies, not confirmed social posts or unique people. Recording requires the reader cookie and a successful request to the server; copying still works if tracking fails. Failed tracking requests are not automatically retried, since a lost response may follow a successful save. Counts start at zero when this feature is deployed; earlier shares cannot be recovered.
+
 Run the clipboard interaction tests with `node --test src/test/js/share.test.cjs` (Node.js 18+). The app itself does not require Node.js.
 
-Each article has a heart button that toggles a reader's like, plus a view count. Both totals also appear on the Writing page. A random, HttpOnly, SameSite browser cookie remembers the reader for up to one year; no sign-in is required. Each browser can like an article once and remove that like later. Clearing cookies or using another browser creates a new reader identity, so these are anonymous engagement counts, not verified unique people.
+Each article has a heart button that toggles a reader's like, plus view and share counts. All three totals also appear on the Writing page. A random, HttpOnly, SameSite browser cookie remembers the reader for up to one year; no sign-in is required. Each browser can like an article once and remove that like later. Clearing cookies or using another browser creates a new reader identity, so these are anonymous engagement counts, not verified unique people.
 
-A view is recorded when an article is open in a visible browser tab with JavaScript enabled. Reopening or refreshing the same article within 30 minutes does not add another view for that browser. Listing pages, metadata requests, and HEAD requests do not count. Drafts, future posts, and missing articles cannot receive likes or views. Without JavaScript the article and saved counts remain readable; reactions require JavaScript and cookies.
+A view is recorded when an article is open in a visible browser tab with JavaScript enabled. Reopening or refreshing the same article within 30 minutes does not add another view for that browser. Listing pages, metadata requests, and HEAD requests do not count. Drafts, future posts, and missing articles cannot receive likes, views, or shares. Without JavaScript the article and saved counts remain readable; reactions require JavaScript and cookies.
 
 Counts and likes are stored in `data/engagement.mv.db`, outside the JAR and Markdown files. Keep this directory writable and persistent across deployments. `ENGAGEMENT_DB` changes the database path (for example, `/var/lib/portfolio/engagement`, without a file extension), and `ENGAGEMENT_DB_PASSWORD` optionally sets its password. The Docker commands above retain this data in a named volume. Run one application instance per database file. Stop the application before copying the database for backup; restoring that file restores the counters and reactions. Article filenames identify the counters, so renaming a slug starts a new article's engagement history.
 
-The API uses `GET /api/articles/{slug}/stats`, `POST /api/articles/{slug}/views`, and `PUT /api/articles/{slug}/like` with JSON `{"liked": true}` or `{"liked": false}`. Writes require the reader cookie and `X-Portfolio-Request: 1`; the browser gets its cookie by opening an article. Like writes are idempotent, and transactions serialize updates per article. Tests use isolated H2 databases and do not change production counts.
+Startup automatically adds the share counter to existing databases, preserving views, likes, and reader state. Repeated startup keeps all totals intact; no manual migration is needed.
+
+The API uses `GET /api/articles/{slug}/stats`, `POST /api/articles/{slug}/views`, `POST /api/articles/{slug}/shares` (no body), and `PUT /api/articles/{slug}/like` with JSON `{"liked": true}` or `{"liked": false}`. Stats responses include `views`, `likes`, `shares`, and `liked`. Writes require the reader cookie and `X-Portfolio-Request: 1`; the browser gets its cookie by opening an article. Like writes are idempotent, while each accepted share request increments the total once. Transactions serialize updates per article. Tests use isolated H2 databases and do not change production counts.
 
 ## Structure
 

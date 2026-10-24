@@ -678,7 +678,7 @@ h2 {
     vertical-align: middle
 }
 
-.post-stats, .post-stats > span, .view-count, .heart-button {
+.post-stats, .post-stats > span, .view-count, .share-count, .heart-button {
     display: inline-flex;
     align-items: center;
     gap: 7px

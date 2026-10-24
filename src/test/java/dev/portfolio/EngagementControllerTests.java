@@ -88,9 +88,46 @@ class EngagementControllerTests extends DatabaseTestSupport {
     }
 
     @Test
+    void sharesPersistAndAppearOnArticleAndWritingPages() throws Exception {
+        var reader = reader();
+        mvc.perform(get("/api/articles/article/stats")).andExpect(jsonPath("$.shares").value(0));
+        mvc.perform(get("/blog/article"));
+        mvc.perform(head("/blog/article"));
+        mvc.perform(get("/blog"));
+        mvc.perform(get("/api/articles/article/stats")).andExpect(jsonPath("$.shares").value(0));
+        for (int i = 1; i <= 2; i++) {
+            mvc.perform(post("/api/articles/article/shares").cookie(reader).header("X-Portfolio-Request", "1"))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.shares").value(i))
+                    .andExpect(jsonPath("$.views").value(0)).andExpect(jsonPath("$.likes").value(0))
+                    .andExpect(header().string("Cache-Control", "no-store"))
+                    .andExpect(header().string("X-Robots-Tag", "noindex"));
+            String label = i == 1 ? "1 share" : "2 shares";
+            assertThat(mvc.perform(get("/blog/article")).andReturn().getResponse().getContentAsString())
+                    .contains("data-share-count", label);
+            assertThat(mvc.perform(get("/blog")).andReturn().getResponse().getContentAsString()).contains(label);
+        }
+        mvc.perform(get("/api/articles/article/stats")).andExpect(jsonPath("$.shares").value(2));
+    }
+
+    @Test
+    void shareWritesRequireSameOriginAndAValidReader() throws Exception {
+        mvc.perform(post("/api/articles/article/shares").cookie(reader())).andExpect(status().isForbidden());
+        mvc.perform(post("/api/articles/article/shares").cookie(reader()).header("X-Portfolio-Request", "1")
+                .header("Sec-Fetch-Site", "cross-site")).andExpect(status().isForbidden());
+        mvc.perform(post("/api/articles/article/shares").header("X-Portfolio-Request", "1"))
+                .andExpect(status().isBadRequest());
+        mvc.perform(post("/api/articles/article/shares").cookie(new Cookie(ReaderIdentity.COOKIE, "invalid"))
+                .header("X-Portfolio-Request", "1")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/articles/article/shares")).andExpect(status().isMethodNotAllowed());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM article_stats", Long.class)).isZero();
+    }
+
+    @Test
     void unpublishedAndMissingArticlesCannotBeCountedOrLiked() throws Exception {
         for (var slug : new String[]{"draft", "future", "missing"}) {
             mvc.perform(get("/api/articles/" + slug + "/stats")).andExpect(status().isNotFound());
+            mvc.perform(post("/api/articles/" + slug + "/shares").cookie(reader()).header("X-Portfolio-Request", "1"))
+                    .andExpect(status().isNotFound());
             mvc.perform(post("/api/articles/" + slug + "/views").cookie(reader()).header("X-Portfolio-Request", "1"))
                     .andExpect(status().isNotFound());
             mvc.perform(put("/api/articles/" + slug + "/like").cookie(reader()).header("X-Portfolio-Request", "1")

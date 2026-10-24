@@ -35,6 +35,12 @@ public class EngagementController {
         return result(engagement.recordView(slug, requireReader(request)));
     }
 
+    @PostMapping("/shares")
+    ResponseEntity<ArticleStats> share(@PathVariable String slug, HttpServletRequest request) {
+        blog.post(slug);
+        return result(engagement.recordShare(slug, requireReader(request)));
+    }
+
     @PutMapping(value = "/like", consumes = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<ArticleStats> like(@PathVariable String slug, @RequestBody LikeRequest body, HttpServletRequest request) {
         blog.post(slug);

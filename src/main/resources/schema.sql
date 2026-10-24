@@ -3,6 +3,9 @@ CREATE TABLE IF NOT EXISTS article_stats (
     views BIGINT NOT NULL DEFAULT 0 CHECK (views >= 0)
 );
 
+-- Also upgrades existing databases without resetting their engagement totals.
+ALTER TABLE article_stats ADD COLUMN IF NOT EXISTS shares BIGINT NOT NULL DEFAULT 0 CHECK (shares >= 0);
+
 CREATE TABLE IF NOT EXISTS article_likes (
     slug VARCHAR(255) NOT NULL REFERENCES article_stats(slug),
     reader_id UUID NOT NULL,

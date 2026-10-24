@@ -8,11 +8,42 @@
     const status = document.querySelector('[data-share-status]');
     const fallback = document.querySelector('[data-share-fallback]');
     const field = fallback.querySelector('[data-share-input]');
+    const panel = document.querySelector('[data-article-engagement]');
+    const count = panel.querySelector('[data-share-count]');
+    const countMessage = panel.querySelector('[data-share-count-message]');
     // The server supplies the canonical URL, or a clean article path when SITE_URL is unset.
     const url = new URL(button.dataset.shareUrl, window.location.origin).href;
     field.value = url;
     let busy = false;
     let resetTimer;
+    let copySequence = 0;
+
+    async function recordShare(sequence) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        try {
+            const response = await fetch(`${panel.dataset.api}/shares`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                cache: 'no-store',
+                headers: {'X-Portfolio-Request': '1'},
+                keepalive: true,
+                signal: controller.signal
+            });
+            if (!response.ok) throw new Error('Share count could not be saved');
+            const stats = await response.json();
+            // Concurrent copies and view/like responses can arrive out of order.
+            const shares = Math.max(parseInt(count.textContent, 10) || 0, stats.shares);
+            count.textContent = `${shares} ${shares === 1 ? 'share' : 'shares'}`;
+        } catch (_) {
+            // Copying still succeeded. Do not retry: the server may have saved the count.
+            if (sequence === copySequence) {
+                countMessage.textContent = 'Link copied. The share count could not be updated.';
+            }
+        } finally {
+            clearTimeout(timeout);
+        }
+    }
 
     function legacyCopy() {
         const active = document.activeElement;
@@ -54,6 +85,8 @@
     button.addEventListener('click', async () => {
         if (busy) return;
         busy = true;
+        const sequence = ++copySequence;
+        countMessage.textContent = '';
         button.setAttribute('aria-busy', 'true');
         clearTimeout(resetTimer);
         reset();
@@ -81,6 +114,7 @@
             label.textContent = 'Link copied';
             status.textContent = 'Article link copied to clipboard.';
             resetTimer = setTimeout(reset, 2400);
+            await recordShare(sequence);
         } else {
             fallback.hidden = false;
             field.focus();

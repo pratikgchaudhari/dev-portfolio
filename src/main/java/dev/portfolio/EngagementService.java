@@ -35,10 +35,11 @@ public class EngagementService {
     public ArticleStats stats(String slug, UUID reader) {
         return jdbc.queryForObject("""
                         SELECT COALESCE((SELECT views FROM article_stats WHERE slug = ?), 0) AS views,
+                               COALESCE((SELECT shares FROM article_stats WHERE slug = ?), 0) AS shares,
                                (SELECT COUNT(*) FROM article_likes WHERE slug = ?) AS likes,
                                EXISTS(SELECT 1 FROM article_likes WHERE slug = ? AND reader_id = ?) AS liked
-                        """, (rs, row) -> new ArticleStats(rs.getLong("views"), rs.getLong("likes"), rs.getBoolean("liked")),
-                slug, slug, slug, reader);
+                        """, (rs, row) -> new ArticleStats(rs.getLong("views"), rs.getLong("likes"), rs.getLong("shares"), rs.getBoolean("liked")),
+                slug, slug, slug, slug, reader);
     }
 
     public Map<String, ArticleStats> statsFor(List<Post> posts) {
@@ -46,11 +47,11 @@ public class EngagementService {
         posts.forEach(post -> stats.put(post.slug(), ArticleStats.EMPTY));
         if (posts.isEmpty()) return stats;
         new NamedParameterJdbcTemplate(jdbc).query("""
-                SELECT s.slug, s.views, COUNT(l.reader_id) AS likes
+                SELECT s.slug, s.views, s.shares, COUNT(l.reader_id) AS likes
                 FROM article_stats s LEFT JOIN article_likes l ON l.slug = s.slug
-                WHERE s.slug IN (:slugs) GROUP BY s.slug, s.views
+                WHERE s.slug IN (:slugs) GROUP BY s.slug, s.views, s.shares
                 """, Map.of("slugs", stats.keySet()), rs -> {
-            stats.put(rs.getString("slug"), new ArticleStats(rs.getLong("views"), rs.getLong("likes"), false));
+            stats.put(rs.getString("slug"), new ArticleStats(rs.getLong("views"), rs.getLong("likes"), rs.getLong("shares"), false));
         });
         return stats;
     }
@@ -82,8 +83,16 @@ public class EngagementService {
         });
     }
 
+    public ArticleStats recordShare(String slug, UUID reader) {
+        return transactions.execute(transaction -> {
+            lockArticle(slug);
+            jdbc.update("UPDATE article_stats SET shares = shares + 1 WHERE slug = ?", slug);
+            return stats(slug, reader);
+        });
+    }
+
     private void lockArticle(String slug) {
-        // Only the slug is updated: existing view totals remain intact.
+        // Only the slug is updated: existing view and share totals remain intact.
         jdbc.update("MERGE INTO article_stats (slug) KEY (slug) VALUES (?)", slug);
         // Serialize changes for one article, including simultaneous requests from different tabs.
         jdbc.queryForObject("SELECT views FROM article_stats WHERE slug = ? FOR UPDATE", Long.class, slug);
