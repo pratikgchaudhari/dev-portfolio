@@ -7,42 +7,45 @@ const {runInNewContext} = require('node:vm');
 const script = readFileSync(join(__dirname, '../../main/resources/static/share.js'), 'utf8');
 
 function setup({writeText, legacy = () => false, secure = true,
-                url = 'https://notnullpratik.dev/blog/generics-in-java', article = true, request} = {}) {
-    const classes = new Set();
-    const attrs = new Map();
+                url = 'https://notnullpratik.dev/blog/generics-in-java', article = true, request, rowCount = 1} = {}) {
     const timers = new Map();
     const transient = new Set();
-    const label = {textContent: 'Share'};
-    const status = {textContent: ''};
-    const count = {textContent: '0 shares'};
-    const countMessage = {textContent: ''};
     const requests = [];
-    const panel = {dataset: {api: '/api/articles/generics-in-java'}, querySelector: selector =>
-        selector === '[data-share-count]' ? count : countMessage};
-    let click;
     let nextTimer = 0;
     let legacyCalls = 0;
-    const button = {
-        hidden: true, dataset: {shareUrl: url}, offsetWidth: 142,
-        classList: {add: key => classes.add(key), remove: key => classes.delete(key)},
-        querySelector: () => label,
-        addEventListener: (event, handler) => { if (event === 'click') click = handler; },
-        setAttribute: (key, value) => attrs.set(key, value),
-        removeAttribute: key => attrs.delete(key),
-        focus: () => { document.activeElement = button; }
-    };
-    const field = {
-        value: '', selected: false,
-        focus: () => { document.activeElement = field; },
-        select: () => { field.selected = true; }
-    };
-    const fallback = {hidden: true, querySelector: () => field};
-    const elements = {'[data-share-article]': article ? button : null,
-        '[data-article-engagement]': panel,
-        '[data-share-status]': status, '[data-share-fallback]': fallback};
+    const rows = Array.from({length: rowCount}, () => {
+        const classes = new Set();
+        const attrs = new Map();
+        const label = {textContent: 'Share'}, status = {textContent: ''};
+        const count = {textContent: '0 shares'}, countMessage = {textContent: ''};
+        let click;
+        const button = {
+            hidden: true, dataset: {shareUrl: url}, offsetWidth: 142,
+            classList: {add: key => classes.add(key), remove: key => classes.delete(key)},
+            querySelector: () => label,
+            addEventListener: (event, handler) => { if (event === 'click') click = handler; },
+            setAttribute: (key, value) => attrs.set(key, value),
+            removeAttribute: key => attrs.delete(key),
+            focus: () => { document.activeElement = button; }
+        };
+        const field = {
+            value: '', selected: false,
+            focus: () => { document.activeElement = field; },
+            select: () => { field.selected = true; }
+        };
+        const fallback = {hidden: true, querySelector: () => field};
+        const controls = {'[data-share-article]': button, '[data-share-count]': count,
+            '[data-share-count-message]': countMessage, '[data-share-status]': status,
+            '[data-share-fallback]': fallback};
+        const panel = {dataset: {api: '/api/articles/generics-in-java'},
+            querySelector: selector => controls[selector]};
+        return {button, label, status, fallback, field, classes, attrs, count, countMessage, panel,
+            click: () => click()};
+    });
     const document = {
-        activeElement: button,
-        querySelector: selector => elements[selector],
+        activeElement: rows[0].button,
+        querySelector: selector => selector === '[data-article-engagement]' ? rows[0].panel : null,
+        querySelectorAll: () => article ? rows.map(row => row.panel) : [],
         createElement: () => {
             const input = {style: {}, focus: () => { document.activeElement = input; },
                 select() {}, setSelectionRange() {}, remove: () => transient.delete(input)};
@@ -67,9 +70,8 @@ function setup({writeText, legacy = () => false, secure = true,
         setTimeout: callback => { const id = ++nextTimer; timers.set(id, callback); return id; },
         clearTimeout: id => timers.delete(id)
     });
-    return {button, label, status, fallback, field, classes, attrs, timers, transient, document,
-        count, countMessage, requests, panel,
-        click: () => click(), legacyCalls: () => legacyCalls,
+    return {...rows[0], rows, timers, transient, document, requests,
+        click: (index = 0) => rows[index].click(), legacyCalls: () => legacyCalls,
         expire: () => { const callbacks = [...timers.values()]; timers.clear(); callbacks.forEach(fn => fn()); }};
 }
 
@@ -245,7 +247,8 @@ test('a delayed view response preserves shares and a restored page refreshes the
         '[data-share-count]': ui.count,
         '[data-engagement-message]': {textContent: ''}
     };
-    ui.panel.querySelector = selector => elements[selector];
+    const originalQuery = ui.panel.querySelector;
+    ui.panel.querySelector = selector => elements[selector] || originalQuery(selector);
     ui.document.visibilityState = 'visible';
     ui.document.addEventListener = () => {};
     let finishView;
@@ -265,4 +268,56 @@ test('a delayed view response preserves shares and a restored page refreshes the
     assert.equal(ui.count.textContent, '1 share');
     await restore({persisted: true});
     assert.equal(ui.count.textContent, '3 shares');
+});
+
+
+test('copying from the footer updates both totals and confirms beside the clicked button', async () => {
+    const writes = [];
+    const ui = setup({rowCount: 2, writeText: async value => writes.push(value)});
+    await ui.click(1);
+    assert.deepEqual(writes, ['https://notnullpratik.dev/blog/generics-in-java']);
+    assert.equal(ui.requests.length, 1);
+    assert.equal(ui.rows[0].count.textContent, '1 share');
+    assert.equal(ui.rows[1].count.textContent, '1 share');
+    assert.equal(ui.rows[0].label.textContent, 'Share');
+    assert.equal(ui.rows[1].label.textContent, 'Link copied');
+    assert.equal(ui.rows[1].classes.has('is-copied'), true);
+});
+
+test('a pending clipboard request prevents a second copy from the other row', async () => {
+    let finish;
+    let calls = 0;
+    const ui = setup({rowCount: 2, writeText: () => { calls++; return new Promise(resolve => { finish = resolve; }); }});
+    const pending = ui.click(1);
+    await ui.click(0);
+    assert.equal(calls, 1);
+    finish();
+    await pending;
+    assert.equal(ui.requests.length, 1);
+    assert.equal(ui.rows[0].count.textContent, ui.rows[1].count.textContent);
+});
+
+test('manual copy stays in the footer when automatic copying fails there', async () => {
+    const ui = setup({rowCount: 2});
+    await ui.click(1);
+    assert.equal(ui.rows[0].fallback.hidden, true);
+    assert.equal(ui.rows[1].fallback.hidden, false);
+    assert.equal(ui.document.activeElement, ui.rows[1].field);
+    assert.equal(ui.rows[1].field.selected, true);
+    assert.equal(ui.requests.length, 0);
+});
+
+test('out-of-order responses from different rows keep both share totals current', async () => {
+    const responses = [];
+    const ui = setup({rowCount: 2, writeText: async () => {}, request: () => new Promise(resolve => responses.push(resolve))});
+    const first = ui.click(0);
+    await new Promise(resolve => setImmediate(resolve));
+    const second = ui.click(1);
+    await new Promise(resolve => setImmediate(resolve));
+    responses[1]({ok: true, json: async () => ({shares: 2})});
+    await second;
+    responses[0]({ok: true, json: async () => ({shares: 1})});
+    await first;
+    assert.equal(ui.rows[0].count.textContent, '2 shares');
+    assert.equal(ui.rows[1].count.textContent, '2 shares');
 });

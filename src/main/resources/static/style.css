@@ -1031,6 +1031,32 @@ footer.shell {
     color: var(--muted)
 }
 
+.article-reading-end {
+    height: 1px
+}
+
+.article-end-engagement-slot {
+    width: 100%;
+    min-height: 53px
+}
+
+.article-end-engagement {
+    animation: article-actions-enter .28s ease-out
+}
+
+.article-end-engagement[hidden] {
+    display: none
+}
+
+.article-end-engagement .article-engagement {
+    margin-top: 0
+}
+
+@keyframes article-actions-enter {
+    from { opacity: 0; transform: translateY(12px) }
+    to { opacity: 1; transform: translateY(0) }
+}
+
 .article-shell {
     width: min(740px, calc(100% - 48px));
     margin: 52px auto 80px
@@ -1209,7 +1235,9 @@ footer.shell {
     padding-top: 26px;
     border-top: 1px solid var(--line);
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
     color: var(--muted);
     font-size: 14px
 }
@@ -1430,6 +1458,10 @@ footer.shell {
         display: none
     }
 
+    .article-end-engagement-slot {
+        min-height: 98px
+    }
+
     .prose {
         font-size: 17px
     }
@@ -1440,6 +1472,7 @@ footer.shell {
         scroll-behavior: auto
     }
 
+    .article-end-engagement,
     .heart-button,
     .heart-button .heart-icon,
     .heart-button [data-like-count],

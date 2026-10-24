@@ -124,9 +124,11 @@ Each article also has a **Share** button that copies its canonical public URL wi
 
 The share count records each successful copy through this button, including repeat copies by the same reader. Clipboard failures, merely selecting the manual fallback link, page loads, and copying from the address bar do not count. The total measures link copies, not confirmed social posts or unique people. Recording requires the reader cookie and a successful request to the server; copying still works if tracking fails. Failed tracking requests are not automatically retried, since a lost response may follow a successful save. Counts start at zero when this feature is deployed; earlier shares cannot be recovered.
 
-Run the clipboard interaction tests with `node --test src/test/js/share.test.cjs` (Node.js 18+). The app itself does not require Node.js.
+Run the engagement and clipboard interaction tests with `node --test src/test/js/*.test.cjs` (Node.js 18+). The app itself does not require Node.js.
 
 Each article has a heart button that toggles a reader's like, plus view and share counts. All three totals also appear on the Writing page. A random, HttpOnly, SameSite browser cookie remembers the reader for up to one year; no sign-in is required. Each browser can like an article once and remove that like later. Clearing cookies or using another browser creates a new reader identity, so these are anonymous engagement counts, not verified unique people.
+
+A second engagement row appears when the end of the article enters the viewport, directly above “More articles.” It uses the same like, view, and Share layout as the top row. Space is reserved so revealing it does not move the navigation link. Both rows share live counts and pending actions; revealing the footer never records an extra view. Copy confirmations and manual-copy fallbacks stay beside the button used. The footer row hides when scrolling back up unless it still has keyboard focus, respects reduced motion, and remains hidden without JavaScript or IntersectionObserver support.
 
 A view is recorded when an article is open in a visible browser tab with JavaScript enabled. Reopening or refreshing the same article within 30 minutes does not add another view for that browser. Listing pages, metadata requests, and HEAD requests do not count. Drafts, future posts, and missing articles cannot receive likes, views, or shares. Without JavaScript the article and saved counts remain readable; reactions require JavaScript and cookies.
 

@@ -11,51 +11,11 @@
             <div class="byline"><a href="/#about" rel="author" th:text="${name}"></a><span aria-hidden="true">/</span>
                 <time th:datetime="${post.date}" th:text="${post.displayDate()}"></time>
                 <span th:text="${post.minutes + ' min read'}"></span></div>
-            <div class="article-engagement" data-article-engagement th:attr="data-api=@{/api/articles/{slug}(slug=${post.slug})}">
-                <button class="heart-button" type="button" disabled
-                        th:attr="aria-pressed=${stats.liked},aria-label=${stats.liked ? 'Unlike this article' : 'Like this article'}">
-                    <span class="heart-reaction" aria-hidden="true">
-                        <svg th:replace="~{fragments :: heartIcon}"></svg>
-                    </span>
-                    <span data-like-count th:text="${stats.likes + (stats.likes == 1 ? ' like' : ' likes')}"></span>
-                </button>
-                <span class="view-count"><svg th:replace="~{fragments :: eyeIcon}"></svg>
-                    <span data-view-count th:text="${stats.views + (stats.views == 1 ? ' view' : ' views')}"></span>
-                </span>
-                <button class="share-button" type="button" data-share-article hidden
-                        th:attr="data-share-url=${seo.canonicalUrl != null ? seo.canonicalUrl : '/blog/' + post.slug}"
-                        aria-describedby="article-share-help" title="Copy article link">
-                    <span class="share-glyph" aria-hidden="true">
-                        <svg class="share-link-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                            <path d="m10 13 4-4m-6 6-1 1a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0m2 2 1-1a4.2 4.2 0 0 1 6 6l-4 4a4.2 4.2 0 0 1-6 0" transform="translate(1 2)"/>
-                        </svg>
-                        <svg class="share-check-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
-                            <path d="m5 12 4 4L19 6"/>
-                        </svg>
-                    </span>
-                    <span class="share-copy">
-                        <span data-share-label>Share</span>
-                        <span data-share-count th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
-                    </span>
-                </button>
-                <span class="visually-hidden" id="article-share-help">Copy this article’s link to your clipboard.</span>
-                <span class="visually-hidden" role="status" aria-live="polite" data-share-status></span>
-                <p class="engagement-message" role="status" aria-live="polite" data-engagement-message></p>
-                <p class="engagement-message" role="status" aria-live="polite" data-share-count-message></p>
-                <div class="share-fallback" data-share-fallback hidden>
-                    <label for="article-share-url">Copy the link below:</label>
-                    <input id="article-share-url" type="text" readonly data-share-input spellcheck="false">
-                </div>
-                <noscript>
-                    <span class="share-count">
-                        <svg th:replace="~{fragments :: shareIcon}"></svg>
-                        <span th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
-                    </span>
-                </noscript>
-            </div>
+            <div th:replace="~{fragments :: articleEngagement('top')}"></div>
             <noscript><p class="engagement-message">Enable JavaScript to like or share this article.</p></noscript>
         </header>
         <div class="prose" th:utext="${post.html}"></div>
+        <div class="article-reading-end" data-article-reading-end aria-hidden="true"></div>
     </article>
     <section class="related-articles" th:if="${!relatedPosts.isEmpty()}" aria-labelledby="also-see-heading">
         <h2 id="also-see-heading">Also see<span class="accent">.</span></h2>
@@ -73,7 +33,14 @@
             </li>
         </ul>
     </section>
-    <div class="article-end"><a class="text-link" href="/blog">More articles →</a></div>
+    <div class="article-end">
+        <div class="article-end-engagement-slot">
+            <aside class="article-end-engagement" data-article-end-engagement aria-label="Article actions" hidden>
+                <div th:replace="~{fragments :: articleEngagement('bottom')}"></div>
+            </aside>
+        </div>
+        <a class="text-link" href="/blog">More articles →</a>
+    </div>
 </main>
 <footer th:replace="~{fragments :: footer}"></footer>
 <script src="/engagement.js" defer></script>

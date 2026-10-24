@@ -123,5 +123,47 @@
             <span title="Successful link copies using the Share button"><svg th:replace="~{fragments :: shareIcon}"></svg><span th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span></span>
         </div></div>
     <span class="arrow" aria-hidden="true">↗</span></a></div>
+<div th:fragment="articleEngagement(position)" class="article-engagement" data-article-engagement th:attr="data-api=@{/api/articles/{slug}(slug=${post.slug})}">
+    <button class="heart-button" type="button" disabled
+            th:attr="aria-pressed=${stats.liked},aria-label=${stats.liked ? 'Unlike this article' : 'Like this article'}">
+        <span class="heart-reaction" aria-hidden="true">
+            <svg th:replace="~{fragments :: heartIcon}"></svg>
+        </span>
+        <span data-like-count th:text="${stats.likes + (stats.likes == 1 ? ' like' : ' likes')}"></span>
+    </button>
+    <span class="view-count"><svg th:replace="~{fragments :: eyeIcon}"></svg>
+        <span data-view-count th:text="${stats.views + (stats.views == 1 ? ' view' : ' views')}"></span>
+    </span>
+    <button class="share-button" type="button" data-share-article hidden
+            th:attr="data-share-url=${seo.canonicalUrl != null ? seo.canonicalUrl : '/blog/' + post.slug}"
+            th:aria-describedby="${'article-share-help-' + position}" title="Copy article link">
+        <span class="share-glyph" aria-hidden="true">
+            <svg class="share-link-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="m10 13 4-4m-6 6-1 1a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0m2 2 1-1a4.2 4.2 0 0 1 6 6l-4 4a4.2 4.2 0 0 1-6 0" transform="translate(1 2)"/>
+            </svg>
+            <svg class="share-check-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                <path d="m5 12 4 4L19 6"/>
+            </svg>
+        </span>
+        <span class="share-copy">
+            <span data-share-label>Share</span>
+            <span data-share-count th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
+        </span>
+    </button>
+    <span class="visually-hidden" th:id="${'article-share-help-' + position}">Copy this article’s link to your clipboard.</span>
+    <span class="visually-hidden" role="status" aria-live="polite" data-share-status></span>
+    <p class="engagement-message" role="status" aria-live="polite" data-engagement-message></p>
+    <p class="engagement-message" role="status" aria-live="polite" data-share-count-message></p>
+    <div class="share-fallback" data-share-fallback hidden>
+        <label th:for="${'article-share-url-' + position}">Copy the link below:</label>
+        <input th:id="${'article-share-url-' + position}" type="text" readonly data-share-input spellcheck="false">
+    </div>
+    <noscript>
+        <span class="share-count">
+            <svg th:replace="~{fragments :: shareIcon}"></svg>
+            <span th:text="${stats.shares + (stats.shares == 1 ? ' share' : ' shares')}"></span>
+        </span>
+    </noscript>
+</div>
 </body>
 </html>

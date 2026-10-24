@@ -1,34 +1,48 @@
 (() => {
-    const panel = document.querySelector('[data-article-engagement]');
-    if (!panel) return;
+    const rows = [...document.querySelectorAll('[data-article-engagement]')].map(panel => ({
+        panel,
+        button: panel.querySelector('.heart-button'),
+        likeCount: panel.querySelector('[data-like-count]'),
+        viewCount: panel.querySelector('[data-view-count]'),
+        shareCount: panel.querySelector('[data-share-count]'),
+        message: panel.querySelector('[data-engagement-message]')
+    }));
+    if (!rows.length) return;
 
-    const button = panel.querySelector('.heart-button');
-    const likeCount = panel.querySelector('[data-like-count]');
-    const viewCount = panel.querySelector('[data-view-count]');
-    const shareCount = panel.querySelector('[data-share-count]');
-    const message = panel.querySelector('[data-engagement-message]');
+    const {panel, button, message} = rows[0];
+    const buttons = rows.map(row => row.button);
+    const endActions = document.querySelector('[data-article-end-engagement]');
     let busy = false;
     let viewRequested = false;
     let celebrationTimer;
 
+    function setBusy(value) {
+        busy = value;
+        buttons.forEach(control => { control.disabled = value; });
+    }
+
     function stopCelebration() {
         clearTimeout(celebrationTimer);
-        button.classList.remove('is-celebrating');
+        buttons.forEach(control => control.classList.remove('is-celebrating'));
     }
 
     function celebrateLike() {
-        button.classList.add('is-celebrating');
+        buttons.forEach(control => control.classList.add('is-celebrating'));
         celebrationTimer = setTimeout(stopCelebration, 750);
     }
 
     function render(stats) {
-        button.setAttribute('aria-pressed', String(stats.liked));
-        button.setAttribute('aria-label', stats.liked ? 'Unlike this article' : 'Like this article');
-        likeCount.textContent = `${stats.likes} ${stats.likes === 1 ? 'like' : 'likes'}`;
-        viewCount.textContent = `${stats.views} ${stats.views === 1 ? 'view' : 'views'}`;
-        // A delayed view/like response must not undo a newer share total.
-        const shares = Math.max(parseInt(shareCount.textContent, 10) || 0, stats.shares);
-        shareCount.textContent = `${shares} ${shares === 1 ? 'share' : 'shares'}`;
+        buttons.forEach(control => {
+            control.setAttribute('aria-pressed', String(stats.liked));
+            control.setAttribute('aria-label', stats.liked ? 'Unlike this article' : 'Like this article');
+        });
+        // A delayed view/like response must not undo a newer share total in either row.
+        const shares = Math.max(stats.shares, ...rows.map(row => parseInt(row.shareCount.textContent, 10) || 0));
+        rows.forEach(row => {
+            row.likeCount.textContent = `${stats.likes} ${stats.likes === 1 ? 'like' : 'likes'}`;
+            row.viewCount.textContent = `${stats.views} ${stats.views === 1 ? 'view' : 'views'}`;
+            row.shareCount.textContent = `${shares} ${shares === 1 ? 'share' : 'shares'}`;
+        });
     }
 
     async function request(path, method, body) {
@@ -55,51 +69,64 @@
     async function recordView() {
         if (viewRequested || document.visibilityState !== 'visible') return;
         viewRequested = true;
-        busy = true;
-        button.disabled = true;
+        setBusy(true);
         try {
             render(await request('views', 'POST'));
         } catch (error) {
             message.textContent = 'The view count could not be updated. You can still read the article.';
         } finally {
-            busy = false;
-            button.disabled = false;
+            setBusy(false);
         }
     }
 
-    button.addEventListener('click', async () => {
+    async function toggleLike(event) {
         if (busy) return;
         stopCelebration();
-        busy = true;
-        button.disabled = true;
-        message.textContent = '';
+        setBusy(true);
+        rows.forEach(row => { row.message.textContent = ''; });
+        const feedback = rows.find(row => row.button === event.currentTarget).message;
         const liked = button.getAttribute('aria-pressed') !== 'true';
         try {
             const stats = await request('like', 'PUT', {liked});
             render(stats);
             if (liked && stats.liked) celebrateLike();
-            message.textContent = liked ? 'Thanks for the love!' : 'Like removed.';
+            feedback.textContent = liked ? 'Thanks for the love!' : 'Like removed.';
         } catch (error) {
-            message.textContent = `Your reaction could not be saved. ${error.message === 'Please allow cookies, then reload this page.' ? error.message : 'Please try again.'}`;
+            feedback.textContent = `Your reaction could not be saved. ${error.message === 'Please allow cookies, then reload this page.' ? error.message : 'Please try again.'}`;
         } finally {
-            busy = false;
-            button.disabled = false;
+            setBusy(false);
         }
-    });
+    }
+    buttons.forEach(control => control.addEventListener('click', toggleLike));
+
+    const articleEnd = document.querySelector('[data-article-reading-end]');
+    if (endActions && articleEnd && 'IntersectionObserver' in window) {
+        let atEnd = false;
+        const updateEndActions = () => {
+            // Preserve keyboard focus until the reader moves to another control.
+            endActions.hidden = !atEnd && !endActions.contains(document.activeElement);
+        };
+        const observer = new IntersectionObserver(entries => {
+            const entry = entries[entries.length - 1];
+            // Keep the row visible after passing the marker, including restored scroll positions.
+            atEnd = entry.boundingClientRect.top <= (entry.rootBounds?.bottom ?? window.innerHeight - 96);
+            updateEndActions();
+        }, {rootMargin: '0px 0px -96px 0px'});
+        observer.observe(articleEnd);
+        endActions.addEventListener('focusout', () => requestAnimationFrame(updateEndActions));
+    }
 
     // Hidden or prefetched tabs count only when the reader actually opens them.
     document.addEventListener('visibilitychange', recordView);
     window.addEventListener('pageshow', async event => {
         if (!event.persisted || busy) return;
-        busy = true;
-        button.disabled = true;
+        setBusy(true);
         try {
             render(await request('stats', 'GET'));
         } catch (error) {
             message.textContent = 'Counts could not be refreshed. Please reload this page.';
         } finally {
-            busy = false;
-            button.disabled = false;
+            setBusy(false);
         }
     });
     recordView();

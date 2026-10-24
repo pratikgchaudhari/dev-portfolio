@@ -78,8 +78,21 @@ class SeoTests extends DatabaseTestSupport {
     void articleShareCopiesTheCanonicalUrlWithoutTrackingParameters() throws Exception {
         String html = html("/blog/first?utm_source=newsletter");
         var button = Pattern.compile("<button[^>]+data-share-article[^>]*>").matcher(html);
-        assertThat(button.find()).isTrue();
-        assertThat(button.group()).contains("hidden", "data-share-url=\"https://notnullpratik.dev/blog/first\"");
+        var buttons = button.results().map(result -> result.group()).toList();
+        assertThat(buttons).hasSize(2).allSatisfy(markup ->
+                assertThat(markup).contains("hidden", "data-share-url=\"https://notnullpratik.dev/blog/first\""));
+        for (String position : new String[]{"top", "bottom"}) {
+            assertThat(html).contains("aria-describedby=\"article-share-help-" + position + "\"",
+                    "id=\"article-share-help-" + position + "\"",
+                    "for=\"article-share-url-" + position + "\"",
+                    "id=\"article-share-url-" + position + "\"");
+        }
+        var ids = Pattern.compile("\\sid=\"([^\"]+)\"").matcher(html).results()
+                .map(result -> result.group(1)).toList();
+        assertThat(ids).doesNotHaveDuplicates();
+        assertThat(Pattern.compile("data-view-count").matcher(html).results().count()).isEqualTo(2);
+        assertThat(Pattern.compile("src=\"/share.js\"").matcher(html).results().count()).isEqualTo(1);
+        assertThat(Pattern.compile("src=\"/engagement.js\"").matcher(html).results().count()).isEqualTo(1);
         assertThat(html).contains("data-share-status", "data-share-fallback", "src=\"/share.js\"");
         assertThat(html("/blog")).doesNotContain("data-share-article", "src=\"/share.js\"");
     }
