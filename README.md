@@ -66,6 +66,10 @@ Use each target's filename without `.md`, separated by commas. A single slug wor
 
 Duplicates, self-links, and references that do not match a published article are omitted, including drafts and future-dated posts. Use slugs rather than full URLs or Markdown links. If no valid related articles remain, the section is hidden. Links are one-way; add a `related` line to the other post for a reciprocal link. Changes take effect on the next request without rebuilding the JAR.
 
+## Reading progress
+
+Each article shows a thin bar along the top of the window that fills as the reader scrolls. It reaches 100% when the last line of the article body is on screen, so the "Also see" section and footer do not count as unread. Short articles that fit on one screen show a full bar. The bar is decorative (hidden from screen readers), is not printed, and stays hidden without JavaScript. It updates once per animation frame and recalculates when the layout changes, for example when images load. The script is `reading-progress.js`; the color is the site's `--blue`.
+
 ## Article search
 
 The search field on the Writing page searches all published articles, including their titles, summaries, topics (`tag`), and Markdown text and code. Enter a query and press **Search** or Enter. Searches ignore case, accents, and extra whitespace; every space-separated term must match somewhere in the article. Terms match literally, so programming terms such as `C++` work. Link destinations and Markdown formatting are not indexed.

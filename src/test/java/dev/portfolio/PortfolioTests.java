@@ -91,6 +91,21 @@ class PortfolioTests extends DatabaseTestSupport {
     }
 
     @Test
+    void onlyArticlesHaveAReadingProgressBarHiddenUntilScriptsRun() throws Exception {
+        var article = mvc.perform(get("/blog/generics-in-java")).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertThat(article).containsOnlyOnce("data-reading-progress")
+                .contains("<div class=\"reading-progress\" data-reading-progress aria-hidden=\"true\" hidden></div>",
+                        "<script src=\"/reading-progress.js\" defer></script>", "data-article-reading-end");
+        assertThat(article.indexOf("data-reading-progress")).isLessThan(article.indexOf("<header"));
+        for (var route : new String[]{"/", "/blog", "/books"}) {
+            var html = mvc.perform(get(route)).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+            assertThat(html).doesNotContain("data-reading-progress", "reading-progress.js");
+        }
+    }
+
+    @Test
     void pagesAndMissingPosts() throws Exception {
         mvc.perform(get("/blog")).andExpect(status().isOk());
         mvc.perform(get("/blog/generics-in-java")).andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("<title>Generics in Java — Pratik Chaudhari</title>")));

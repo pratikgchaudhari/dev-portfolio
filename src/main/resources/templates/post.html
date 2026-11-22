@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments :: head}"></head>
 <body>
+<div class="reading-progress" data-reading-progress aria-hidden="true" hidden></div>
 <header th:replace="~{fragments :: header}"></header>
 <main id="main" class="article-shell"><a class="back" href="/blog">← All writing</a>
     <article>
@@ -43,6 +44,7 @@
     </div>
 </main>
 <footer th:replace="~{fragments :: footer}"></footer>
+<script src="/reading-progress.js" defer></script>
 <script src="/code-highlight.js" defer></script>
 <script src="/engagement.js" defer></script>
 <script src="/share.js" defer></script>
