@@ -1212,16 +1212,51 @@ footer.shell {
     height: auto
 }
 
+/* Tables scroll sideways instead of squeezing columns; edge shadows hint at hidden columns. */
 .prose table {
     display: block;
-    overflow: auto;
-    border-collapse: collapse
+    max-width: 100%;
+    width: max-content;
+    margin: 28px 0;
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    border-collapse: collapse;
+    font-size: 16px;
+    line-height: 1.6;
+    background: linear-gradient(to right, var(--paper) 30%, transparent) left / 40px 100% no-repeat local,
+    linear-gradient(to left, var(--paper) 30%, transparent) right / 40px 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, color-mix(in srgb, var(--ink) 22%, transparent), transparent) left / 14px 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, color-mix(in srgb, var(--ink) 22%, transparent), transparent) right / 14px 100% no-repeat scroll;
+    -webkit-overflow-scrolling: touch
 }
 
 .prose td, .prose th {
-    border: 1px solid var(--line);
-    padding: 10px 16px;
-    text-align: left
+    min-width: 8rem;
+    max-width: 28rem;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+    /* Never split words or identifiers mid-word inside cells. */
+    overflow-wrap: normal;
+    word-break: normal
+}
+
+.prose td + td, .prose th + th {
+    border-left: 1px solid var(--line)
+}
+
+.prose tbody tr:last-child td {
+    border-bottom: 0
+}
+
+.prose th {
+    background: var(--highlight);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .01em;
+    vertical-align: bottom
 }
 
 .related-articles {
@@ -1531,6 +1566,16 @@ footer.shell {
 
     .prose {
         font-size: 17px
+    }
+
+    .prose table {
+        font-size: 15px
+    }
+
+    .prose td, .prose th {
+        min-width: 9rem;
+        max-width: 18rem;
+        padding: 10px 14px
     }
 }
 
