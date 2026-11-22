@@ -50,7 +50,9 @@ Markdown supports **bold**, *italics*, links, images, lists, blockquotes, fenced
 
 The filename becomes `/blog/my-first-post`. Use lowercase letters, numbers, and hyphens. Metadata uses a deliberately small `key: value` format (not full YAML): one value per line, optionally surrounded by quotes. Title, ISO date, and summary are required. Tag defaults to Notes. Drafts and future-dated posts are hidden, including their detail URLs; dates are compared in UTC. Files are read on every request, so saving a file immediately updates the site. Posts sort newest first. An empty folder shows an empty state. Invalid published content reports an explicit server-side error with the filename; validate posts locally before deployment.
 
-Raw HTML is escaped and unsafe URL schemes are removed by the Markdown renderer. Only rendered Markdown is inserted as HTML; metadata uses escaped template output. Images can be placed in `src/main/resources/static/images` and referenced as `/images/example.png` (rebuild the JAR for new static assets). Code blocks are styled without syntax highlighting.
+Raw HTML is escaped and unsafe URL schemes are removed by the Markdown renderer. Only rendered Markdown is inserted as HTML; metadata uses escaped template output. Images can be placed in `src/main/resources/static/images` and referenced as `/images/example.png` (rebuild the JAR for new static assets).
+
+Fenced code blocks that name a language (for example ` ```java `, ` ```jsx `, ` ```bash `, ` ```yaml `) get syntax highlighting in the browser. Blocks without a language, or with one the highlighter does not know, keep the plain code style; the language is never guessed. The highlighter is [highlight.js](https://highlightjs.org/) 11.11.1 (BSD-3-Clause), served locally from `src/main/resources/static/vendor/highlight/` with its common languages plus `properties` and `dockerfile`. `code-highlight.js` loads it only on articles that contain a tagged code block. Token colors are the `--code-*` variables in `style.css`. Without JavaScript, code remains readable with the plain style.
 
 ## Related articles ("Also see")
 
